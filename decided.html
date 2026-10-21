@@ -10,7 +10,7 @@
 :root {
   --bg: #E8F1EB;
   --ink: #0E1A15;
-  --muted: #53625A;
+  --muted: #4B5952;
   --faint: rgba(14,26,21,.06);
   --line: rgba(14,26,21,.10);
   --field: rgba(255,255,255,.60);
@@ -24,11 +24,9 @@
   --good: #0C9A6A;
   --warn: #B86404;
   --bad: #D7264E;
-  --s-breakfast: #E08A07;
-  --s-lunch: #0C9A6A;
-  --s-dinner: #6A57E0;
-  --s-snack: #E8385C;
   --cat-1: #E8385C; --cat-2: #2F72EC; --cat-3: #0C9A6A; --cat-4: #E08A07; --cat-5: #6FA712; --cat-6: #8B5CF6;
+  --surface: rgba(250,253,251,.84);
+  --lift: 0 1px 2px rgba(18,62,44,.07);
   --glass: rgba(255,255,255,.48);
   --glass-strong: rgba(255,255,255,.80);
   --rim-a: rgba(255,255,255,.95);
@@ -49,8 +47,8 @@
     --bg: #06100C; --ink: #EAF3EE; --muted: #9AADA3; --faint: rgba(255,255,255,.06); --line: rgba(255,255,255,.11); --field: rgba(0,0,0,.26);
     --accent: #34D399; --accent-2: #2DD4BF; --accent-ink: #03140C; --accent-soft: rgba(52,211,153,.18);
     --prot: #FB7190; --carb: #FBBF3C; --fat: #6EA8FF; --good: #34D399; --warn: #FBBF3C; --bad: #FB7190;
-    --s-breakfast: #FBBF3C; --s-lunch: #34D399; --s-dinner: #A797FF; --s-snack: #FB7190;
     --cat-1: #FB7190; --cat-2: #6EA8FF; --cat-3: #34D399; --cat-4: #FBBF3C; --cat-5: #A3E635; --cat-6: #A78BFA;
+    --surface: rgba(15,26,21,.84); --lift: 0 1px 2px rgba(0,0,0,.35);
     --glass: rgba(22,34,29,.46); --glass-strong: rgba(46,62,55,.78);
     --rim-a: rgba(255,255,255,.32); --rim-b: rgba(255,255,255,.09); --rim-c: rgba(0,0,0,.35);
     --sheen: linear-gradient(168deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,.02) 34%, rgba(255,255,255,0) 58%);
@@ -65,8 +63,8 @@
   --bg: #06100C; --ink: #EAF3EE; --muted: #9AADA3; --faint: rgba(255,255,255,.06); --line: rgba(255,255,255,.11); --field: rgba(0,0,0,.26);
   --accent: #34D399; --accent-2: #2DD4BF; --accent-ink: #03140C; --accent-soft: rgba(52,211,153,.18);
   --prot: #FB7190; --carb: #FBBF3C; --fat: #6EA8FF; --good: #34D399; --warn: #FBBF3C; --bad: #FB7190;
-  --s-breakfast: #FBBF3C; --s-lunch: #34D399; --s-dinner: #A797FF; --s-snack: #FB7190;
     --cat-1: #FB7190; --cat-2: #6EA8FF; --cat-3: #34D399; --cat-4: #FBBF3C; --cat-5: #A3E635; --cat-6: #A78BFA;
+  --surface: rgba(15,26,21,.84); --lift: 0 1px 2px rgba(0,0,0,.35);
   --glass: rgba(22,34,29,.46); --glass-strong: rgba(46,62,55,.78);
   --rim-a: rgba(255,255,255,.32); --rim-b: rgba(255,255,255,.09); --rim-c: rgba(0,0,0,.35);
   --sheen: linear-gradient(168deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,.02) 34%, rgba(255,255,255,0) 58%);
@@ -98,34 +96,33 @@ h1, h2, h3, h4 { text-wrap: balance; }
 .b5 { width: 36vmax; height: 36vmax; left: 34vw; top: 26vh; background: radial-gradient(closest-side, var(--blob-5), transparent); animation: drift 40s ease-in-out -20s infinite alternate; opacity: .65; }
 @keyframes drift { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(6vmax, 4vmax, 0) scale(1.12); } }
 
-/* Liquid glass */
-.glass {
-  position: relative;
+/* Surfaces: panels sit on the page as solid surfaces. Frosted glass (.frost) is kept for what floats above it:
+   the tab bar, the Next up card and toasts. */
+.glass { position: relative; background: var(--surface); border-radius: var(--r-lg); box-shadow: inset 0 0 0 1px var(--line), var(--lift); }
+.frost {
   background: var(--sheen), var(--glass);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   backdrop-filter: blur(24px) saturate(180%);
-  border-radius: var(--r-lg);
   box-shadow: inset 0 1px 0 var(--rim-a), inset 0 -1px 0 var(--rim-c), var(--shadow);
 }
-.glass::after {
+.frost::after {
   content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
   background: linear-gradient(140deg, var(--rim-a), var(--rim-b) 20%, transparent 42%, transparent 64%, var(--rim-b) 86%, var(--rim-a));
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
 }
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .glass { background: var(--sheen), var(--glass-strong); } }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .frost { background: var(--sheen), var(--glass-strong); } }
 .panel { padding: 20px; border-radius: var(--r-xl); min-width: 0; }
 
 /* Header */
 .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; padding-block: 12px 4px; }
-/* Scroll-edge effect: content fades and blurs as it slides under the floating header */
+/* Scroll-edge effect: content fades out as it slides under the header */
 .top::before { content: ""; position: absolute; inset: 0 0 -22px; z-index: -1; pointer-events: none;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--bg) 88%, transparent) 35%, transparent);
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bg) 92%, transparent) 40%, transparent);
   -webkit-mask: linear-gradient(180deg, #000 55%, transparent); mask: linear-gradient(180deg, #000 55%, transparent); }
 .top-row { display: flex; align-items: center; gap: 10px; }
 .brand { display: flex; align-items: center; gap: 10px; padding: 6px 16px 6px 6px; border-radius: 999px; flex: none; }
-.brand-mark { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: var(--accent-ink); background: linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,0) 55%), linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 6px 14px -6px var(--accent); }
+.brand-mark { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: var(--accent-ink); background: linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,0) 55%), linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 2px 6px -2px rgba(0,0,0,.25); }
 .brand-mark .ic { width: 20px; height: 20px; stroke-width: 2.75; }
 .brand-name { font-family: var(--font-display); font-weight: 750; font-size: 19px; letter-spacing: -0.035em; white-space: nowrap; }
 .brand-name .dot { color: var(--accent); }
@@ -162,7 +159,7 @@ main.wrap { padding-block: 10px 80px; }
 /* Type */
 .h1 { font-family: var(--font-display); font-weight: 750; font-size: clamp(28px, 4vw, 38px); letter-spacing: -0.035em; line-height: 1.02; margin: 2px 0 0; }
 .h2 { font-family: var(--font-display); font-weight: 700; font-size: 20px; letter-spacing: -0.02em; line-height: 1.2; margin: 0; }
-.eyebrow { font-size: 11.5px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 750; }
+.eyebrow { font-size: 13px; color: var(--muted); font-weight: 650; }
 .bignum { font-family: var(--font-display); font-weight: 750; font-size: 44px; line-height: 1; letter-spacing: -0.035em; font-variant-numeric: tabular-nums; }
 .bignum .u { font-family: var(--font-body); font-size: 14px; font-weight: 650; color: var(--muted); letter-spacing: 0; margin-left: 4px; }
 .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px 16px; flex-wrap: wrap; margin: 14px 0 18px; }
@@ -172,17 +169,18 @@ main.wrap { padding-block: 10px 80px; }
 .count { font-size: 12.5px; font-weight: 700; color: var(--muted); padding: 3px 10px; border-radius: 999px; background: var(--faint); }
 
 /* Controls */
-.btn { appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; padding: 8px 16px; border: 0; border-radius: 999px; color: var(--ink); font: 650 14px/1.1 var(--font-body); cursor: pointer; white-space: nowrap; text-decoration: none;
-  background: var(--sheen), var(--glass-strong); box-shadow: inset 0 1px 0 var(--rim-a), inset 0 0 0 1px var(--line), var(--shadow-sm);
+.btn { appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; padding: 8px 16px; border: 0; border-radius: var(--r-sm); color: var(--ink); font: 650 14px/1.1 var(--font-body); cursor: pointer; white-space: nowrap; text-decoration: none;
+  background: var(--glass-strong); box-shadow: inset 0 0 0 1px var(--line);
   transition: transform .25s var(--spring), box-shadow .2s, filter .2s; }
 .btn:hover { transform: translateY(-1px); }
 .btn:active { transform: scale(.96); }
 .btn .ic { width: 17px; height: 17px; }
-.btn.primary { color: var(--accent-ink); background: linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,0) 52%), linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -1px 0 rgba(0,0,0,.08), 0 10px 22px -10px var(--accent); }
+/* The primary action is the one pill, the one gradient and the one glow on a screen. */
+.btn.primary { border-radius: 999px; color: var(--accent-ink); background: linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,0) 52%), linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -1px 0 rgba(0,0,0,.08), 0 10px 22px -10px var(--accent); }
 .btn.primary:hover { filter: brightness(1.05) saturate(1.1); }
-.btn.sm { min-height: 34px; padding: 6px 13px; font-size: 13px; }
-.btn.icon { width: 40px; padding: 0; }
-.btn.icon.sm { width: 34px; }
+.btn.sm { min-height: 36px; padding: 6px 13px; font-size: 13px; }
+.btn.icon { width: 44px; padding: 0; }
+.btn.icon.sm { width: 36px; }
 .btn.ghost { background: transparent; box-shadow: none; color: var(--muted); }
 .btn.ghost:hover { background: var(--faint); color: var(--ink); }
 .btn.big { min-height: 52px; font-size: 16px; width: 100%; }
@@ -210,7 +208,7 @@ input::placeholder { color: color-mix(in srgb, var(--muted) 80%, transparent); }
   border: 2px solid color-mix(in srgb, var(--muted) 45%, transparent); background: var(--field); transition: transform .3s var(--spring), background .2s, border-color .2s; }
 .tick:hover { border-color: var(--accent); }
 .tick:active { transform: scale(.88); }
-.tick:checked { border-color: transparent; background: linear-gradient(180deg, rgba(255,255,255,.3), rgba(255,255,255,0) 55%), linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 6px 14px -6px var(--accent); }
+.tick:checked { border-color: transparent; background: var(--accent); }
 .tick:checked::after { content: ""; width: 11px; height: 6px; border-left: 2.5px solid var(--accent-ink); border-bottom: 2.5px solid var(--accent-ink); transform: translateY(-1.5px) rotate(-45deg); }
 .tick.sm { width: 22px; height: 22px; }
 .tick.sm:checked::after { width: 9px; height: 5px; border-width: 0 0 2px 2px; }
@@ -221,9 +219,9 @@ input::placeholder { color: color-mix(in srgb, var(--muted) 80%, transparent); }
 .seg input, .chips input, .opt input { position: absolute; opacity: 0; pointer-events: none; }
 .seg span { display: inline-flex; align-items: center; min-height: 34px; padding: 6px 13px; border-radius: 12px; font-weight: 650; font-size: 13.5px; color: var(--muted); cursor: pointer; user-select: none; transition: background .25s, color .25s, box-shadow .25s; }
 .seg span:hover { color: var(--ink); }
-.seg input:checked + span { color: var(--ink); background: var(--sheen), var(--glass-strong); box-shadow: inset 0 1px 0 var(--rim-a), 0 4px 12px -4px rgba(0,0,0,.22); }
+.seg input:checked + span { color: var(--ink); background: var(--glass-strong); box-shadow: inset 0 0 0 1px var(--line), 0 1px 3px rgba(0,0,0,.12); }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chips span { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 6px 13px; border-radius: 999px; font-weight: 650; font-size: 13.5px; cursor: pointer; background: var(--field); border: 1px solid var(--line); transition: all .25s; }
+.chips span { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 6px 13px; border-radius: 10px; font-weight: 650; font-size: 13.5px; cursor: pointer; background: var(--field); border: 1px solid var(--line); transition: all .25s; }
 .chips span .ic { width: 15px; height: 15px; display: none; }
 .chips input:checked + span { background: color-mix(in srgb, var(--bad) 14%, transparent); border-color: color-mix(in srgb, var(--bad) 40%, transparent); color: color-mix(in srgb, var(--bad) 80%, var(--ink)); }
 .chips input:checked + span .ic { display: block; }
@@ -234,16 +232,16 @@ input::placeholder { color: color-mix(in srgb, var(--muted) 80%, transparent); }
 .opt .bub { grid-row: span 2; width: 38px; height: 38px; border-radius: 12px; }
 .opt b { font-weight: 750; font-size: 14.5px; }
 .opt small { color: var(--muted); font-size: 12.5px; line-height: 1.35; }
-.opt input:checked + span { background: var(--sheen), var(--glass-strong); border-color: color-mix(in srgb, var(--accent) 60%, transparent); box-shadow: 0 0 0 3px var(--accent-soft), var(--shadow-sm); }
+.opt input:checked + span { background: var(--glass-strong); border-color: color-mix(in srgb, var(--accent) 60%, transparent); box-shadow: 0 0 0 3px var(--accent-soft); }
 
 /* Bubbles and macro chips */
-.bub { --c: var(--accent); width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; flex: none; color: color-mix(in srgb, var(--c) 82%, var(--ink)); background: color-mix(in srgb, var(--c) 17%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), inset 0 0 0 1px color-mix(in srgb, var(--c) 18%, transparent); }
+.bub { --c: var(--muted); width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; flex: none; color: color-mix(in srgb, var(--c) 82%, var(--ink)); background: color-mix(in srgb, var(--c) 17%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), inset 0 0 0 1px color-mix(in srgb, var(--c) 18%, transparent); }
 .bub .ic { width: 20px; height: 20px; }
-.bub.grad { color: var(--accent-ink); background: linear-gradient(180deg, rgba(255,255,255,.3), rgba(255,255,255,0) 55%), linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 8px 18px -8px var(--accent); }
+.bub.grad { color: var(--accent-ink); background: var(--accent); box-shadow: none; }
 .bub.sm { width: 30px; height: 30px; border-radius: 10px; }
 .bub.sm .ic { width: 16px; height: 16px; }
 .mchips { display: flex; flex-wrap: wrap; gap: 5px; }
-.mchip { --c: var(--accent); display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px 3px 7px; border-radius: 999px; font-size: 12.5px; font-weight: 750; font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--c) 78%, var(--ink)); background: color-mix(in srgb, var(--c) 14%, transparent); }
+.mchip { --c: var(--accent); display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px 3px 7px; border-radius: 8px; font-size: 12.5px; font-weight: 750; font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--c) 70%, var(--ink)); background: color-mix(in srgb, var(--c) 14%, transparent); }
 .mchip .ic { width: 14px; height: 14px; }
 .m-p { --c: var(--prot); } .m-c { --c: var(--carb); } .m-f { --c: var(--fat); } .m-k { --c: var(--accent); }
 .bar { --c: var(--accent); height: 7px; border-radius: 99px; background: color-mix(in srgb, var(--c) 16%, transparent); overflow: hidden; }
@@ -291,7 +289,7 @@ input::placeholder { color: color-mix(in srgb, var(--muted) 80%, transparent); }
 .stack { display: grid; gap: 26px; min-width: 0; }
 .rows { display: grid; gap: 10px; }
 .mrow { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 6px 14px; align-items: center; padding: 12px 14px 12px 12px; border-radius: var(--r-lg); transition: box-shadow .3s; }
-.mrow.done { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 60%, transparent), inset 0 1px 0 var(--rim-a), var(--shadow); }
+.mrow.done { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 60%, transparent), var(--lift); }
 .mrow .sub { font-size: 12.5px; color: var(--muted); font-weight: 600; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .mrow .nm { font-weight: 700; font-size: 15.5px; line-height: 1.3; }
 .num { text-align: right; font-variant-numeric: tabular-nums; line-height: 1.1; white-space: nowrap; }
@@ -325,11 +323,11 @@ details .mchips { margin-top: 10px; }
 .meal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 16px; align-items: start; }
 .meal { display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: var(--r-xl); min-width: 0; transition: transform .4s var(--spring), box-shadow .3s; }
 .meal:hover { transform: translateY(-2px); }
-.meal.eaten { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 60%, transparent), inset 0 1px 0 var(--rim-a), var(--shadow); }
+.meal.eaten { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 60%, transparent), var(--lift); }
 .meal-head { display: flex; align-items: center; gap: 12px; }
 .meal-head .time { display: flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--muted); font-weight: 600; }
 .meal-head .time .ic { width: 14px; height: 14px; }
-.by { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 750; color: var(--accent-ink); background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+.by { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 650; color: var(--muted); }
 .by .ic { width: 13px; height: 13px; }
 .meal h3 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 21px; line-height: 1.15; letter-spacing: -0.02em; }
 .kline { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
@@ -353,7 +351,7 @@ details .mchips { margin-top: 10px; }
 .daychip:hover { transform: translateY(-2px); }
 .daychip .d { font-weight: 750; font-size: 14px; }
 .daychip .s { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; font-weight: 600; }
-.daychip[aria-pressed="true"] { color: var(--accent-ink); background: linear-gradient(180deg, rgba(255,255,255,.3), rgba(255,255,255,0) 55%), linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 12px 24px -12px var(--accent); }
+.daychip[aria-pressed="true"] { color: var(--accent-ink); background: var(--accent); box-shadow: none; }
 .daychip[aria-pressed="true"] .s { color: inherit; opacity: .85; }
 .totals { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px 32px; align-items: center; margin-bottom: 18px; }
 @media (max-width: 640px) { .totals { grid-template-columns: minmax(0, 1fr); } }
@@ -366,7 +364,7 @@ details .mchips { margin-top: 10px; }
 .groc-wrap { margin-top: 22px; }
 .groc { columns: 2 280px; column-gap: 28px; }
 .groc section { break-inside: avoid; margin-bottom: 18px; }
-.groc h4 { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); }
+.groc h4 { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; font-size: 13px; font-weight: 700; color: var(--muted); }
 .gitem { display: flex; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14px; cursor: pointer; }
 .gitem .amt { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; font-weight: 600; }
 .gitem input:checked ~ .nm { text-decoration: line-through; color: var(--muted); }
@@ -398,7 +396,7 @@ textarea.copyout { width: 100%; min-height: 160px; font: 13px/1.5 ui-monospace, 
 .tablewrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
 th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
-th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 750; }
+th { font-size: 13px; color: var(--muted); font-weight: 700; }
 tr:last-child td { border-bottom: 0; }
 td.n, th.n { text-align: right; }
 .wform { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; align-items: end; }
@@ -448,7 +446,7 @@ td.n, th.n { text-align: right; }
 /* Groceries */
 .segb { appearance: none; border: 0; background: none; font: 650 13.5px var(--font-body); color: var(--muted); min-height: 34px; padding: 6px 14px; border-radius: 12px; cursor: pointer; transition: background .25s, color .25s, box-shadow .25s; }
 .segb:hover { color: var(--ink); }
-.segb[aria-pressed="true"] { color: var(--ink); background: var(--sheen), var(--glass-strong); box-shadow: inset 0 1px 0 var(--rim-a), 0 4px 12px -4px rgba(0,0,0,.22); }
+.segb[aria-pressed="true"] { color: var(--ink); background: var(--glass-strong); box-shadow: inset 0 0 0 1px var(--line), 0 1px 3px rgba(0,0,0,.12); }
 .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 16px; }
 @media (max-width: 980px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .kpi { display: grid; gap: 8px; padding: 16px; border-radius: var(--r-xl); min-width: 0; align-content: start; }
@@ -484,7 +482,7 @@ td.n, th.n { text-align: right; }
 .topi-row .bar { grid-column: 1 / -1; height: 6px; }
 .slist { columns: 2 330px; column-gap: 28px; margin-top: 14px; }
 .gcat { break-inside: avoid; margin-bottom: 18px; }
-.gcat-h { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-size: 12px; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); }
+.gcat-h { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--muted); }
 .gcat-h .sw { width: 10px; height: 10px; border-radius: 3px; flex: none; }
 .gcat-h b { margin-left: auto; color: var(--ink); letter-spacing: 0; text-transform: none; font-size: 13px; font-variant-numeric: tabular-nums; }
 .slist .gitem { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; cursor: default; }
@@ -524,7 +522,7 @@ td.n, th.n { text-align: right; }
 /* Favourites, swap picker and batch notes */
 .fav[aria-pressed="true"] { color: var(--prot); }
 .fav[aria-pressed="true"] .ic, .fav-dot .ic, .fav-chip > .ic { fill: currentColor; }
-.note { display: flex; gap: 8px; align-items: flex-start; padding: 9px 12px; border-radius: var(--r-sm); font-size: 13.5px; font-weight: 600; color: color-mix(in srgb, var(--s-dinner) 75%, var(--ink)); background: color-mix(in srgb, var(--s-dinner) 12%, transparent); }
+.note { display: flex; gap: 8px; align-items: flex-start; padding: 9px 12px; border-radius: var(--r-sm); font-size: 13.5px; font-weight: 600; color: color-mix(in srgb, var(--muted) 75%, var(--ink)); background: color-mix(in srgb, var(--muted) 12%, transparent); }
 .note .ic { width: 16px; height: 16px; margin-top: 1px; }
 .swap { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; padding: 12px; border-radius: var(--r); background: var(--field); border: 1px solid var(--line); }
 .swap-h { display: flex; align-items: center; gap: 8px; justify-content: space-between; min-width: 0; }
@@ -546,8 +544,8 @@ td.n, th.n { text-align: right; }
 
 /* Training days */
 .chips.pos input:checked + span { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 45%, transparent); color: color-mix(in srgb, var(--accent) 80%, var(--ink)); }
-.daytype { appearance: none; border: 0; margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px 6px 9px; border-radius: 999px; font: 700 12.5px var(--font-body); cursor: pointer; color: color-mix(in srgb, var(--s-dinner) 80%, var(--ink)); background: color-mix(in srgb, var(--s-dinner) 14%, transparent); transition: background .2s, transform .25s var(--spring); }
-.daytype:hover { background: color-mix(in srgb, var(--s-dinner) 22%, transparent); }
+.daytype { appearance: none; border: 0; margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px 6px 9px; border-radius: 999px; font: 700 12.5px var(--font-body); cursor: pointer; color: color-mix(in srgb, var(--muted) 80%, var(--ink)); background: color-mix(in srgb, var(--muted) 14%, transparent); transition: background .2s, transform .25s var(--spring); }
+.daytype:hover { background: color-mix(in srgb, var(--muted) 22%, transparent); }
 .daytype:active { transform: scale(.95); }
 .daytype .ic { width: 15px; height: 15px; }
 .daytype .ic:last-child { width: 13px; height: 13px; opacity: .6; }
@@ -636,7 +634,15 @@ i.hm-future { background: none; box-shadow: inset 0 0 0 1px var(--line); opacity
 /* Touch screens: 16px text in fields stops iOS zooming in on focus, and no grey flash on tap */
 * { -webkit-tap-highlight-color: transparent; }
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-@media (pointer: coarse) { input[type], input:not([type]), .selectbox select, textarea.copyout { font-size: 16px; } }
+@media (pointer: coarse) {
+  input[type], input:not([type]), .selectbox select, textarea.copyout { font-size: 16px; }
+  /* Fingers need 44px targets; small controls grow, and the round ones get an invisible hit area. */
+  .btn.sm, .seg span, .chips span, .segb, .qchip, .daytype { min-height: 44px; }
+  .btn.icon.sm { width: 44px; }
+  .glassbtn { height: 44px; }
+  .tick, .xchip button { position: relative; }
+  .tick::before, .xchip button::before { content: ""; position: absolute; inset: -9px; border-radius: 50%; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .blob, .spin { animation: none; }
@@ -649,7 +655,7 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 <header class="top">
   <div class="wrap top-row">
     <div class="brand glass"><span class="brand-mark" data-i="check"></span><span class="brand-name">decided<span class="dot">.</span></span></div>
-    <nav class="tabbar glass" role="tablist" aria-label="Sections">
+    <nav class="tabbar glass frost" role="tablist" aria-label="Sections">
       <span class="tab-thumb" aria-hidden="true"></span>
       <button class="tab" role="tab" data-act="tab" data-tab="today"><i data-i="sun"></i><span>Today</span></button>
       <button class="tab" role="tab" data-act="tab" data-tab="plan"><i data-i="calendar-days"></i><span>Meal plan</span></button>
@@ -661,7 +667,7 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   </div>
 </header>
 <main class="wrap" id="view"></main>
-<div class="toast glass" id="toast" role="status" aria-live="polite" hidden></div>
+<div class="toast glass frost" id="toast" role="status" aria-live="polite" hidden></div>
 <datalist id="foodlist"></datalist>
 
 <script>
@@ -708,6 +714,7 @@ const ICONS = {
   'list-checks': '<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>',
   'loader-circle': '<path d="M21 12a9 9 0 1 1-6.219-8.56"/>',
   'map-pin': '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+  'message-circle': '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
   'milk': '<path d="M8 2h8"/><path d="M9 2v2.789a4 4 0 0 1-.672 2.219l-.656.984A4 4 0 0 0 7 10.212V20a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-9.789a4 4 0 0 0-.672-2.219l-.656-.984A4 4 0 0 1 15 4.788V2"/><path d="M7 15a6.472 6.472 0 0 1 5 0 6.47 6.47 0 0 0 5 0"/>',
   'minus': '<path d="M5 12h14"/>',
   'moon': '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
@@ -728,7 +735,6 @@ const ICONS = {
   'shuffle': '<path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/>',
   'sliders-horizontal': '<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>',
   'sofa': '<path d="M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3"/><path d="M2 16a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z"/><path d="M4 18v2"/><path d="M20 18v2"/><path d="M12 4v9"/>',
-  'sparkles': '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/>',
   'square': '<rect width="18" height="18" x="3" y="3" rx="2"/>',
   'store': '<path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"/>',
   'sun': '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
@@ -744,7 +750,6 @@ const ICONS = {
   'weight': '<circle cx="12" cy="5" r="3"/><path d="M6.5 8a2 2 0 0 0-1.905 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.925-2.54L19.4 9.5A2 2 0 0 0 17.48 8Z"/>',
   'wheat': '<path d="M2 22 16 8"/><path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"/><path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/><path d="M15.47 13.47 17 15l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L9 15l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/><path d="M19.47 9.47 21 11l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L13 11l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>',
   'x': '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
-  'zap': '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
 };
 const ic = (n, cls) => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ''}</svg>`;
 
@@ -1043,7 +1048,7 @@ const ACT = {
   athlete: { f: 1.9, name: 'Athlete', d: 'Physical job plus daily training', i: 'trophy' },
 };
 const GOALS = {
-  fastcut: { name: 'Fast cut', rate: -1.0, pkg: 2.2, d: 'Lose about 1% of body weight a week', i: 'zap' },
+  fastcut: { name: 'Fast cut', rate: -1.0, pkg: 2.2, d: 'Lose about 1% of body weight a week', i: 'trending-down' },
   cut: { name: 'Cut', rate: -0.5, pkg: 2.0, d: 'Lose about 0.5% a week, keep muscle', i: 'trending-down' },
   maintain: { name: 'Maintain', rate: 0, pkg: 1.8, d: 'Hold your weight and recomp slowly', i: 'scale' },
   leanbulk: { name: 'Lean bulk', rate: 0.25, pkg: 1.8, d: 'Gain about 0.25% a week, minimal fat', i: 'trending-up' },
@@ -1491,8 +1496,10 @@ function qtyStr(i) {
   const f = FOOD[i.f], g = r0(i.q), base = f.ml ? `${g} ml` : `${g} g`;
   return f.unit ? `${unitStr(f, i.q)} · ${base}` : base;
 }
-const bub = (icon, color, cls) => `<span class="bub${cls ? ' ' + cls : ''}"${color ? ` style="--c:var(${color})"` : ''}>${ic(icon)}</span>`;
-const slotBub = (slot, cls) => bub(SLOT_ICON[slot] || 'utensils', '--s-' + slot, cls);
+// Icon tiles stay neutral; colour is kept only where it carries meaning: a state, a macro or a grocery aisle.
+const MEANS = /^--(good|warn|bad|prot|carb|fat|cat-\d)$/;
+const bub = (icon, color, cls) => `<span class="bub${cls ? ' ' + cls : ''}"${MEANS.test(color || '') ? ` style="--c:var(${color})"` : ''}>${ic(icon)}</span>`;
+const slotBub = (slot, cls) => bub(SLOT_ICON[slot] || 'utensils', '', cls);
 const mchips = t => `<div class="mchips"><span class="mchip m-p" title="Protein">${ic('beef')}${r0(t.p)} g<span class="sr"> protein</span></span><span class="mchip m-c" title="Carbs">${ic('wheat')}${r0(t.c)} g<span class="sr"> carbs</span></span><span class="mchip m-f" title="Fat">${ic('droplet')}${r0(t.f)} g<span class="sr"> fat</span></span></div>`;
 const ingList = m => `<ul class="ing">${m.items.map(it => `<li><span>${esc(FOOD[it.f].name)}</span><span>${qtyStr(it)}</span></li>`).join('')}</ul>`;
 const stepList = m => m.steps?.length ? `<ol class="steps">${m.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>` : '';
@@ -1501,7 +1508,7 @@ const signed = kg => (kg > 0.005 ? '+' : kg < -0.005 ? '−' : '') + wt(Math.abs
 const barPct = (v, t) => t > 0 ? v / t * 100 : 0;
 const bar = (v, t, color) => { const p = barPct(v, t); return `<div class="bar${p > 108 ? ' over' : ''}" style="--c:var(${color})"><i style="width:${Math.min(100, p).toFixed(1)}%"></i></div>`; };
 function banner(text, { button = true, warn = false, action = '' } = {}) {
-  return `<div class="banner glass${warn ? ' warn' : ''}">${bub(warn ? 'triangle-alert' : 'info', warn ? '--warn' : '--accent', 'sm')}<p>${text}</p>${action || (button ? `<button class="btn primary sm" data-act="quick-start">${ic('sparkles')}Start in 3 questions</button>` : '')}</div>`;
+  return `<div class="banner glass${warn ? ' warn' : ''}">${bub(warn ? 'triangle-alert' : 'info', warn ? '--warn' : '--accent', 'sm')}<p>${text}</p>${action || (button ? `<button class="btn primary sm" data-act="quick-start">${ic('check')}Start in 3 questions</button>` : '')}</div>`;
 }
 const empty = (icon, title, text, acts) => `<div class="empty glass">${bub(icon)}<b>${title}</b>${text ? `<span>${text}</span>` : ''}${acts ? `<div class="acts">${acts}</div>` : ''}</div>`;
 const thinking = text => `<div class="thinking">${ic('loader-circle', 'spin')}${text}</div>`;
@@ -1589,14 +1596,14 @@ function viewToday() {
   if (!plan.length) {
     meals = store.mode === 'loading' && !state.profile.example
       ? empty('loader-circle', 'Loading your plan…')
-      : empty('utensils', isToday ? "Today isn't decided yet" : "This day isn't decided yet", 'One tap and every meal is picked and portioned to your targets. Or just log what you eat below.', `<button class="btn primary" data-act="build-day" data-k="${k}">${ic('sparkles')}${isToday ? "Decide today's meals" : 'Decide this day'}</button>`);
+      : empty('utensils', isToday ? "Today isn't decided yet" : "This day isn't decided yet", 'One tap and every meal is picked and portioned to your targets. Or just log what you eat below.', `<button class="btn primary" data-act="build-day" data-k="${k}">${ic('check')}${isToday ? "Decide today's meals" : 'Decide this day'}</button>`);
   } else {
     meals = `<div class="rows">${plan.map((m, i) => {
       if (!m) return `<div class="mrow glass">${slotBub(slotsList()[i]?.[0] || 'lunch')}<div><div class="sub">${SLOT_NAMES[slotsList()[i]?.[0]] || 'Meal'}</div><div class="nm">Nothing fits your preferences for this slot.</div></div></div>`;
       const mt = itemsTotals(m.items), done = !!d.eaten?.[i];
       return `<div class="mrow glass${done ? ' done' : ''}">
         ${slotBub(m.slot)}
-        <div><div class="sub">${SLOT_NAMES[m.slot]} · ${m.cook?.n > 1 ? `${ic('refrigerator')}leftovers from ${esc(dayRef(m.cook.from))}` : `${m.time} min`}${m.src === 'claude' ? ` · ${ic('sparkles')}Claude` : ''}</div><div class="nm">${esc(m.name)}</div></div>
+        <div><div class="sub">${SLOT_NAMES[m.slot]} · ${m.cook?.n > 1 ? `${ic('refrigerator')}leftovers from ${esc(dayRef(m.cook.from))}` : `${m.time} min`}${m.src === 'claude' ? ` · by Claude` : ''}</div><div class="nm">${esc(m.name)}</div></div>
         <div class="num"><b>${fmt(mt.kcal)}</b><span>kcal</span></div>
         <input type="checkbox" class="tick" data-act="eat" data-k="${k}" data-i="${i}" ${done ? 'checked' : ''} aria-label="Mark ${esc(m.name)} as eaten">
         <details><summary>${ic('chevron-right')}Ingredients &amp; method</summary>${mchips(mt)}<div style="margin-top:10px">${ingList(m)}</div>${stepList(m)}</details>
@@ -1606,7 +1613,7 @@ function viewToday() {
   const eatenCount = plan.filter((m, i) => m && d.eaten?.[i]).length;
   const stale = isStale(d, t) ? banner('Your targets or food preferences changed since this day was decided.', { warn: true, action: `<button class="btn sm" data-act="build-day" data-k="${k}">${ic('rotate-ccw')}Decide again</button>` }) : '';
 
-  const logs = (d?.log || []).map(l => `<div class="logrow">${bub(l.src === 'claude' ? 'sparkles' : 'utensils', '--accent', 'sm')}
+  const logs = (d?.log || []).map(l => `<div class="logrow">${bub(l.src === 'claude' ? 'message-circle' : 'utensils', '', 'sm')}
       <div><div class="nm">${esc(l.name)}</div><div class="sub">${l.q ? `${r0(l.q)} g · ` : ''}${r0(l.p)} g protein · ${r0(l.c)} g carbs · ${r0(l.f)} g fat</div></div>
       <div class="num"><b>${fmt(l.kcal)}</b><span>kcal</span></div>
       <button class="btn ghost icon sm" data-act="log-del" data-k="${k}" data-id="${esc(l.id)}" aria-label="Remove ${esc(l.name)}" title="Remove">${ic('trash-2')}</button></div>`).join('');
@@ -1616,7 +1623,7 @@ function viewToday() {
   let nextUp = '';
   if (nm) {
     const nt = itemsTotals(nm.items), after = plan.find((m, j) => j > ni && m && !d.eaten?.[j]), open = ui.swap?.k === k && ui.swap?.i === ni;
-    nextUp = `<section class="glass panel nextup" aria-label="Next up">
+    nextUp = `<section class="glass frost panel nextup" aria-label="Next up">
       <div class="nu-head">${slotBub(nm.slot)}<div><div class="eyebrow">Next up · ${SLOT_NAMES[nm.slot]}</div><h2 class="nu-name">${esc(nm.name)}</h2></div></div>
       <div class="kline"><span class="kc">${fmt(nt.kcal)}</span><span class="u">kcal</span>${mchips(nt)}</div>
       <div class="muted small">${nm.cook?.n > 1 ? `Leftovers from ${esc(dayRef(nm.cook.from))}, reheat 5 min` : `${nm.time} min`}${after ? ` · then ${esc(after.name)}` : ' · last meal of the day'}</div>
@@ -1625,10 +1632,10 @@ function viewToday() {
     </section>`;
   } else if (isToday && plan.some(Boolean)) {
     const tmr = addDays(k, 1), ready = !!state.days[tmr]?.plan?.length;
-    nextUp = `<section class="glass panel nextup done" aria-label="Next up">
+    nextUp = `<section class="glass frost panel nextup done" aria-label="Next up">
       <div class="nu-head">${bub('circle-check', '--good')}<div><div class="eyebrow">Today</div><h2 class="nu-name">Done for today.</h2></div></div>
       <p class="muted" style="margin:0">${ready ? 'Tomorrow is already decided.' : 'Decide tomorrow now and wake up knowing what to eat.'}</p>
-      <div class="nu-acts">${ready ? `<button class="btn" data-act="day-next">${ic('chevron-right')}See tomorrow</button>` : `<button class="btn primary" data-act="build-day" data-k="${tmr}">${ic('sparkles')}Decide tomorrow</button>`}</div>
+      <div class="nu-acts">${ready ? `<button class="btn" data-act="day-next">${ic('chevron-right')}See tomorrow</button>` : `<button class="btn primary" data-act="build-day" data-k="${tmr}">${ic('check')}Decide tomorrow</button>`}</div>
     </section>`;
   }
 
@@ -1650,12 +1657,12 @@ function viewToday() {
 
   const st = ui.todayAI, aiTarget = todayAITarget();
   const ai = ui.sample ? `<section class="glass panel ai" aria-label="Ask Claude">
-      <div class="ai-head">${bub('sparkles', '', 'grad')}<div><div class="eyebrow">Ask Claude</div><h2 class="h2">What should I eat next?</h2></div></div>
+      <div class="ai-head">${bub('message-circle')}<div><div class="eyebrow">Ask Claude</div><h2 class="h2">What should I eat next?</h2></div></div>
       <p class="muted">You have ${fmt(Math.max(0, left))} kcal and ${fmt(Math.max(0, t.p - e.p))} g protein left. Say what you feel like and Claude builds a meal of about ${fmt(aiTarget.kcal)} kcal from foods that fit your diet.</p>
-      <form data-form="aiToday" class="ask-row"><label class="withic">${ic('utensils')}<input id="ai-today-in" value="${esc(st.craving)}" placeholder="Something warm with rice, 15 minutes max" ${st.busy ? 'disabled' : ''} aria-label="What you feel like eating"></label>${st.busy ? `<button type="button" class="btn" data-act="ai-stop">${ic('square')}Stop</button>` : `<button class="btn primary">${ic('sparkles')}Suggest</button>`}</form>
+      <form data-form="aiToday" class="ask-row"><label class="withic">${ic('utensils')}<input id="ai-today-in" value="${esc(st.craving)}" placeholder="Something warm with rice, 15 minutes max" ${st.busy ? 'disabled' : ''} aria-label="What you feel like eating"></label>${st.busy ? `<button type="button" class="btn" data-act="ai-stop">${ic('square')}Stop</button>` : `<button class="btn primary">${ic('message-circle')}Suggest</button>`}</form>
       ${st.busy ? thinking('Claude is putting a meal together. This can take up to a minute.') : ''}
       ${st.err ? `<div class="err">${esc(st.err)}</div>` : ''}
-      ${st.meal ? `<article class="meal glass"><div class="meal-head">${slotBub(st.meal.slot)}<div><div class="eyebrow">${SLOT_NAMES[st.meal.slot]}</div><div class="time">${ic('clock')}${st.meal.time} min</div></div><span class="by">${ic('sparkles')}Claude</span></div><h3>${esc(st.meal.name)}</h3><div class="kline"><span class="kc">${fmt(itemsTotals(st.meal.items).kcal)}</span><span class="u">kcal</span>${mchips(itemsTotals(st.meal.items))}</div>${ingList(st.meal)}<details class="method"><summary>${ic('chevron-right')}Method</summary>${stepList(st.meal)}</details><div class="meal-actions"><button class="btn primary sm" data-act="ai-log">${ic('check')}Log as eaten</button><button class="btn sm" data-act="ai-retry">${ic('refresh-cw')}Try another</button><button class="btn ghost sm" data-act="ai-clear">Dismiss</button></div></article>` : ''}
+      ${st.meal ? `<article class="meal glass"><div class="meal-head">${slotBub(st.meal.slot)}<div><div class="eyebrow">${SLOT_NAMES[st.meal.slot]}</div><div class="time">${ic('clock')}${st.meal.time} min</div></div><span class="by">by Claude</span></div><h3>${esc(st.meal.name)}</h3><div class="kline"><span class="kc">${fmt(itemsTotals(st.meal.items).kcal)}</span><span class="u">kcal</span>${mchips(itemsTotals(st.meal.items))}</div>${ingList(st.meal)}<details class="method"><summary>${ic('chevron-right')}Method</summary>${stepList(st.meal)}</details><div class="meal-actions"><button class="btn primary sm" data-act="ai-log">${ic('check')}Log as eaten</button><button class="btn sm" data-act="ai-retry">${ic('refresh-cw')}Try another</button><button class="btn ghost sm" data-act="ai-clear">Dismiss</button></div></article>` : ''}
     </section>` : '';
 
   return `${state.profile.example ? banner('This is an example plan for a 75 kg lean bulk. Enter your stats once and every meal is decided for you.') : ''}
@@ -1707,7 +1714,7 @@ const MAX_WEEKS = 4;
 function planKeys() { return Array.from({ length: 7 }, (_, n) => addDays(TODAY(), n + 7 * ui.planWeek)); }
 const weekLabel = w => w === 0 ? 'This week' : w === 1 ? 'Next week' : `In ${w} weeks`;
 function mealCard(m, k, i, eaten) {
-  const askBtn = ui.sample ? `<button class="btn sm" data-act="ask-open" data-k="${k}" data-i="${i}" aria-expanded="${ui.ask?.k === k && ui.ask?.i === i}">${ic('sparkles')}Ask Claude</button>` : '';
+  const askBtn = ui.sample ? `<button class="btn sm" data-act="ask-open" data-k="${k}" data-i="${i}" aria-expanded="${ui.ask?.k === k && ui.ask?.i === i}">${ic('message-circle')}Ask Claude</button>` : '';
   if (!m) {
     const slot = slotsList()[i]?.[0] || 'lunch';
     return `<article class="meal glass"><div class="meal-head">${slotBub(slot)}<div><div class="eyebrow">${SLOT_NAMES[slot]}</div></div></div><h3>Nothing fits this slot</h3><p class="muted small" style="margin:0">Your food preferences rule out every recipe here. Loosen them in Setup${ui.sample ? ', or ask Claude for an idea' : ''}.</p><div class="meal-actions"><button class="btn sm" data-act="tab" data-tab="setup">${ic('sliders-horizontal')}Open setup</button>${askBtn}</div>${askPanel(k, i)}</article>`;
@@ -1717,7 +1724,7 @@ function mealCard(m, k, i, eaten) {
     : more.length ? `<div class="note">${ic('repeat')}<span>Cook ${more.length + 1} portions: eat one now and keep ${more.length > 1 ? 'the rest' : 'one'} for ${esc(more.map(dayRef).join(' and '))}.</span></div>` : '';
   const swapOpen = ui.swap?.k === k && ui.swap?.i === i;
   return `<article class="meal glass${eaten ? ' eaten' : ''}">
-    <div class="meal-head">${slotBub(m.slot)}<div><div class="eyebrow">${SLOT_NAMES[m.slot]}</div><div class="time">${ic(left ? 'refrigerator' : 'clock')}${left ? 'reheat 5' : m.time} min · ${esc(money(mealCost(m)))}</div></div>${m.src === 'claude' ? `<span class="by">${ic('sparkles')}Claude</span>` : ''}</div>
+    <div class="meal-head">${slotBub(m.slot)}<div><div class="eyebrow">${SLOT_NAMES[m.slot]}</div><div class="time">${ic(left ? 'refrigerator' : 'clock')}${left ? 'reheat 5' : m.time} min · ${esc(money(mealCost(m)))}</div></div>${m.src === 'claude' ? `<span class="by">by Claude</span>` : ''}</div>
     <h3>${esc(m.name)}</h3>
     ${note}
     <div class="kline"><span class="kc">${fmt(t.kcal)}</span><span class="u">kcal</span>${mchips(t)}</div>
@@ -1754,7 +1761,7 @@ function askPanel(k, i) {
   const a = ui.ask; if (!a || a.k !== k || a.i !== i || !ui.sample) return '';
   return `<form class="ask" data-form="ask" data-k="${k}" data-i="${i}">
     <label class="lab" for="ask-in">What do you feel like instead?</label>
-    <div class="ask-row"><label class="withic">${ic('sparkles')}<input id="ask-in" value="${esc(a.craving)}" placeholder="Spicy, with salmon, under 20 min" ${a.busy ? 'disabled' : ''}></label>${a.busy ? `<button type="button" class="btn sm" data-act="ask-stop">${ic('square')}Stop</button>` : '<button class="btn sm primary">Make it</button>'}</div>
+    <div class="ask-row"><label class="withic">${ic('message-circle')}<input id="ask-in" value="${esc(a.craving)}" placeholder="Spicy, with salmon, under 20 min" ${a.busy ? 'disabled' : ''}></label>${a.busy ? `<button type="button" class="btn sm" data-act="ask-stop">${ic('square')}Stop</button>` : '<button class="btn sm primary">Make it</button>'}</div>
     ${a.busy ? thinking('Claude is cooking something up. This can take up to a minute.') : ''}
     ${a.err ? `<div class="err">${esc(a.err)}</div>` : ''}
   </form>`;
@@ -1769,7 +1776,7 @@ function viewPlan() {
   let body;
   if (!d?.plan?.length) {
     body = empty('calendar-range', `${esc(dayName(k))} isn't decided yet`, `Each day is picked from ${RECIPES.length} recipes and portioned to your targets.`,
-      `<button class="btn primary" data-act="build-day" data-k="${k}">${ic('sparkles')}Decide this day</button><button class="btn" data-act="plan-week">${ic('calendar-range')}Decide the whole week</button>`);
+      `<button class="btn primary" data-act="build-day" data-k="${k}">${ic('check')}Decide this day</button><button class="btn" data-act="plan-week">${ic('calendar-range')}Decide the whole week</button>`);
   } else {
     const pt = plannedTotals(d), diff = pt.kcal - t.kcal, cookMin = d.plan.reduce((s, m) => s + (!m ? 0 : m.cook?.n > 1 ? 5 : m.time), 0);
     const tb = (icon, label, v, tg, color) => `<div class="tb" style="--c:var(${color})"><div class="tb-h">${ic(icon)}<span>${label}</span><b>${r0(v)} / ${tg} g</b></div>${bar(v, tg, color)}</div>`;
@@ -1904,9 +1911,9 @@ function viewGroceries() {
   const kpi = (icon, color, label, value, sub) => `<div class="kpi glass"><div class="kpi-h">${bub(icon, color, 'sm')}<span class="eyebrow">${label}</span></div><div class="bignum">${value}</div><div class="sub">${sub}</div></div>`;
   const kpis = `<div class="kpis">
     ${kpi('wallet', '--accent', len === 7 ? 'Week total' : 'Month total', esc(money(st.cost)), st.planned === len ? `All ${len} days planned` : `For ${st.planned} planned day${st.planned > 1 ? 's' : ''}`)}
-    ${kpi('receipt', '--carb', 'Per day', esc(money(st.perDay)), `${esc(money(st.meals ? st.cost / st.meals : 0))} per meal`)}
+    ${kpi('receipt', '', 'Per day', esc(money(st.perDay)), `${esc(money(st.meals ? st.cost / st.meals : 0))} per meal`)}
     ${kpi('beef', '--prot', 'Per 100 g protein', esc(money(per100p)), `${fmt(st.tot.p)} g protein in total`)}
-    ${kpi('weight', '--fat', 'Food to buy', `${(st.weight / 1000).toFixed(1)}<span class="u">kg</span>`, `${st.list.length} items · ${fmt(st.tot.kcal)} kcal`)}
+    ${kpi('weight', '', 'Food to buy', `${(st.weight / 1000).toFixed(1)}<span class="u">kg</span>`, `${st.list.length} items · ${fmt(st.tot.kcal)} kcal`)}
   </div>`;
 
   const wk = g.period === 'week' ? st : groceryStats('week'), mo = g.period === 'month' ? st : groceryStats('month');
@@ -1934,12 +1941,12 @@ function viewGroceries() {
   <div class="prog">
     <section class="glass panel s6"><div class="card-head">${bub('piggy-bank', '--accent')}<div><h2 class="h2">Weekly and monthly</h2><div class="muted small">${bud ? 'Compared with your budget' : 'Set a budget below to track it'}</div></div></div>
       <div class="vs">${vsBox('Next 7 days', wk, 7, bud)}${vsBox('Next 30 days', mo, 30, bud ? bud * 30 / 7 : 0)}</div></section>
-    <section class="glass panel s6"><div class="card-head">${bub('chart-pie', '--fat')}<div><h2 class="h2">Where the money goes</h2><div class="muted small">Estimated cost by aisle</div></div></div>${donut(st)}</section>
-    <section class="glass panel s8 chart"><div class="card-head">${bub('chart-column', '--carb')}<div><h2 class="h2">Cost per day</h2><div class="muted small">Dashed line is your daily average of ${esc(money(st.perDay))}</div></div></div>${costBars(st)}</section>
-    <section class="glass panel s4"><div class="card-head">${bub('coins', '--prot')}<h2 class="h2">Biggest costs</h2></div><div class="topi">${topHtml}</div></section>
+    <section class="glass panel s6"><div class="card-head">${bub('chart-pie')}<div><h2 class="h2">Where the money goes</h2><div class="muted small">Estimated cost by aisle</div></div></div>${donut(st)}</section>
+    <section class="glass panel s8 chart"><div class="card-head">${bub('chart-column')}<div><h2 class="h2">Cost per day</h2><div class="muted small">Dashed line is your daily average of ${esc(money(st.perDay))}</div></div></div>${costBars(st)}</section>
+    <section class="glass panel s4"><div class="card-head">${bub('coins')}<h2 class="h2">Biggest costs</h2></div><div class="topi">${topHtml}</div></section>
     <section class="glass panel s8" aria-label="Shopping list">
       <div class="card-head">${bub('list-checks', '--accent')}<div><h2 class="h2">Shopping list</h2><div class="muted small">${boughtItems.length} of ${st.list.length} bought · ${esc(money(boughtCost))} of ${esc(money(st.cost))}</div></div>
-        <div class="right" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" data-act="copy-grocery">${ic('copy')}Copy</button><button class="btn ghost sm" data-act="clear-ticks">${ic('rotate-ccw')}Clear ticks</button></div></div>
+        <div class="right" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" data-act="copy-grocery">${ic('copy')}Copy</button>${boughtItems.length ? `<button class="btn ghost sm" data-act="clear-ticks">${ic('rotate-ccw')}Clear ticks</button>` : ''}</div></div>
       ${bar(boughtCost, st.cost, '--accent')}
       <div class="groc slist">${listHtml}</div><div id="copyout"></div>
     </section>
@@ -1968,9 +1975,9 @@ function wherePanel() {
   const source = p.cityPricesFor ? `Claude's estimate for ${esc(p.cityPricesFor)}, ${esc(dayName(p.cityPricesAt))}` : c ? `${esc(c.name)} averages${p.area > 0 ? ', pricier area' : p.area < 0 ? ', cheaper area' : ''}` : 'your own price level';
   const ai = ui.sample ? `<div class="where-ai">${g.priceBusy
       ? `${thinking(`Claude is pricing ${FOODS.length} foods for ${esc(place || 'your area')}. This can take a minute.`)}<button class="btn sm" data-act="price-stop">${ic('square')}Stop</button>`
-      : `<button class="btn sm${p.cityPricesFor ? '' : ' primary'}" data-act="city-prices">${ic('sparkles')}${p.cityPricesFor ? 'Refresh' : 'Estimate'} prices for ${esc(city || c?.name || 'my area')}</button>${p.cityPricesFor ? '<button class="btn ghost sm" data-act="city-prices-clear">Use country averages</button>' : ''}`}</div>${g.priceErr ? `<div class="err">${esc(g.priceErr)}</div>` : ''}` : '';
+      : `<button class="btn sm${p.cityPricesFor ? '' : ' primary'}" data-act="city-prices">${ic('message-circle')}${p.cityPricesFor ? 'Refresh' : 'Estimate'} prices for ${esc(city || c?.name || 'my area')}</button>${p.cityPricesFor ? '<button class="btn ghost sm" data-act="city-prices-clear">Use country averages</button>' : ''}`}</div>${g.priceErr ? `<div class="err">${esc(g.priceErr)}</div>` : ''}` : '';
   return `<section class="glass panel gset" id="where" aria-label="Where you shop">
-    <div class="card-head">${bub('map-pin', '--fat')}<div><h2 class="h2">Where you shop</h2><div class="muted small">Prices: ${source}</div></div></div>
+    <div class="card-head">${bub('map-pin')}<div><h2 class="h2">Where you shop</h2><div class="muted small">Prices: ${source}</div></div></div>
     <form id="grocWhere" class="gset-form">
       <label class="field"><span class="lab">Country</span><span class="selectbox">${ic('globe')}<select id="gw-country">${COUNTRIES.map(x => `<option value="${x.code}" ${x.code === p.country ? 'selected' : ''}>${esc(x.name)} (${x.iso})</option>`).join('')}<option value="other" ${p.country === 'other' ? 'selected' : ''}>Somewhere else</option></select>${ic('chevron-down')}</span></label>
       <label class="field"><span class="lab">City</span><span class="withic">${ic('map-pin')}<input id="gw-city" value="${esc(p.city || '')}" placeholder="e.g. Casablanca" autocomplete="off" maxlength="60"></span></label>
@@ -2148,7 +2155,7 @@ function viewProgress() {
     return `<tr><td>${esc(dayName(k))}${tk.cycled ? ` <span class="muted small">${tk.train ? 'training' : 'rest'}</span>` : ''}</td><td class="n">${x.e.kcal ? fmt(x.e.kcal) : '–'}</td><td class="n">${x.e.kcal ? r0(x.e.p) + ' g' : '–'}</td><td class="n">${fmt(tk.kcal)}</td><td>${s}</td></tr>`;
   }).join('');
   const consist = `<section class="glass panel s12">
-      <div class="card-head">${bub('flame', '--carb')}<div><h2 class="h2">Consistency</h2><div class="muted small">A day counts when calories land within 7% of target and protein reaches 90%.</div></div></div>
+      <div class="card-head">${bub('flame')}<div><h2 class="h2">Consistency</h2><div class="muted small">A day counts when calories land within 7% of target and protein reaches 90%.</div></div></div>
       <div class="consist">
         <div>
           <div class="bignum">${cs.streak}<span class="u">day${cs.streak === 1 ? '' : 's'} in a row on target</span></div>
@@ -2172,7 +2179,7 @@ function viewProgress() {
       ${series.length >= 2 ? chartSVG(series, fac, goalWk) + `<div class="legend"><span><i class="d"></i>Weigh-in</span><span><i></i>7-day average</span><span><i class="g"></i>Goal pace (${signed(goalWk)} a week)</span></div>` : empty('scale', 'Log two weigh-ins to draw your chart', 'Morning weigh-ins, a few times a week, are enough.')}
     </section>
     <section class="glass panel s4">
-      <div class="card-head">${bub('scale', '--fat')}<h2 class="h2">Log a weigh-in</h2></div>
+      <div class="card-head">${bub('scale')}<h2 class="h2">Log a weigh-in</h2></div>
       <form data-form="weight" class="wform">
         <label class="field"><span class="lab">Date</span><input id="w-date" type="date" value="${TODAY()}" max="${TODAY()}"></label>
         <label class="field"><span class="lab">Weight</span><span class="unitbox"><input id="w-val" type="number" step="0.1" inputmode="decimal" placeholder="${(p.weightKg * fac).toFixed(1)}"><span>${un}</span></span></label>
@@ -2192,7 +2199,7 @@ function viewProgress() {
       <p class="hint">${advice}</p>
     </section>
     <section class="glass panel s6">
-      <div class="card-head">${bub('flame', '--prot')}<div class="eyebrow">Your real maintenance</div></div>
+      <div class="card-head">${bub('flame')}<div class="eyebrow">Your real maintenance</div></div>
       ${mt.est != null ? `<div class="bignum">${fmt(mt.est)}<span class="u">kcal / day</span></div>
         <p class="hint">You averaged ${fmt(mt.intake)} kcal over ${mt.days} logged days while your weight changed ${signed(mt.slope)} a week. The formula estimate is ${fmt(calc({ ...p, tdeeOverride: null }).formulaTdee)} kcal.</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">${p.tdeeOverride === mt.est ? '<span class="state good">In use</span>' : `<button class="btn sm primary" data-act="use-tdee" data-v="${mt.est}">${ic('check')}Use ${fmt(mt.est)} kcal as maintenance</button>`}${p.tdeeOverride ? `<button class="btn sm" data-act="clear-tdee">${ic('rotate-ccw')}Back to the formula</button>` : ''}</div>`
@@ -2211,9 +2218,9 @@ function viewProgress() {
    Three questions for a new user: goal, body, diet. Everything else is decided by default (activity,
    meals, cooking time, units and shop country from the device's language) and stays editable in Setup. */
 const QS_GOALS = [
-  ['cut', 'Lose fat', 'Drop about 0.5% of your weight a week and keep your muscle.', 'trending-down', '--prot'],
-  ['leanbulk', 'Build muscle', 'Gain slowly, about 0.25% a week, with as little fat as possible.', 'trending-up', '--accent'],
-  ['maintain', 'Stay the same, look better', 'Hold your weight while training reshapes you.', 'scale', '--carb'],
+  ['cut', 'Lose fat', 'Drop about 0.5% of your weight a week and keep your muscle.', 'trending-down', ''],
+  ['leanbulk', 'Build muscle', 'Gain slowly, about 0.25% a week, with as little fat as possible.', 'trending-up', ''],
+  ['maintain', 'Stay the same, look better', 'Hold your weight while training reshapes you.', 'scale', ''],
 ];
 const QS_SKIP = 'bck-start-skip';
 const qsSkipped = () => { try { return !!localStorage.getItem(QS_SKIP); } catch { return false; } };
@@ -2307,7 +2314,7 @@ function viewSetup() {
   <div class="setup">
     <form id="setupForm" class="setup-form" novalidate>
       <section class="glass panel fs">
-        <div class="fs-head">${bub('scale', '--fat')}<h2 class="h2">Your body</h2><div class="seg" role="radiogroup" aria-label="Units">${radio('units', 'metric', 'Metric', p.units)}${radio('units', 'imperial', 'Imperial', p.units)}</div></div>
+        <div class="fs-head">${bub('scale')}<h2 class="h2">Your body</h2><div class="seg" role="radiogroup" aria-label="Units">${radio('units', 'metric', 'Metric', p.units)}${radio('units', 'imperial', 'Imperial', p.units)}</div></div>
         <div class="fields">
           <div class="field"><span class="lab">Sex</span><div class="seg">${radio('sex', 'm', 'Male', p.sex)}${radio('sex', 'f', 'Female', p.sex)}</div></div>
           <label class="field"><span class="lab">Age</span><span class="unitbox"><input id="f-age" name="age" type="number" inputmode="numeric" min="14" max="90" value="${p.age}"><span>yrs</span></span></label>
@@ -2315,14 +2322,14 @@ function viewSetup() {
             : `<label class="field"><span class="lab">Height</span><span class="unitbox"><input id="f-hcm" name="hcm" type="number" min="120" max="230" value="${Math.round(p.heightCm)}"><span>cm</span></span></label>`}
           <label class="field"><span class="lab">Weight</span><span class="unitbox"><input id="f-w" name="${imp ? 'wlb' : 'wkg'}" type="number" step="0.1" value="${(p.weightKg * (imp ? 2.20462 : 1)).toFixed(1)}"><span>${imp ? 'lb' : 'kg'}</span></span></label>
         </div>
-        <div class="field"><span class="lab">Activity</span><div class="opts">${Object.entries(ACT).map(([id, a]) => opt('activity', id, a, p.activity, '--fat')).join('')}</div></div>
+        <div class="field"><span class="lab">Activity</span><div class="opts">${Object.entries(ACT).map(([id, a]) => opt('activity', id, a, p.activity)).join('')}</div></div>
       </section>
       <section class="glass panel fs">
-        <div class="fs-head">${bub('target', '--prot')}<h2 class="h2">Your goal</h2></div>
-        <div class="opts">${Object.entries(GOALS).map(([id, g]) => opt('goal', id, g, p.goal, g.rate < 0 ? '--prot' : g.rate > 0 ? '--accent' : '--carb')).join('')}</div>
+        <div class="fs-head">${bub('target')}<h2 class="h2">Your goal</h2></div>
+        <div class="opts">${Object.entries(GOALS).map(([id, g]) => opt('goal', id, g, p.goal)).join('')}</div>
       </section>
       <section class="glass panel fs">
-        <div class="fs-head">${bub('utensils', '--carb')}<h2 class="h2">What you eat</h2></div>
+        <div class="fs-head">${bub('utensils')}<h2 class="h2">What you eat</h2></div>
         <div class="field"><span class="lab">Diet</span><div class="seg">${Object.entries(DIETS).map(([id, dt]) => radio('diet', id, dt.name, prefs.diet)).join('')}</div></div>
         <div class="field"><span class="lab">Leave out (allergies and intolerances)</span><div class="chips">${ALLERGENS.map(([id, n]) => `<label><input type="checkbox" name="avoid" value="${id}" ${prefs.avoid.includes(id) ? 'checked' : ''}><span>${ic('x')}${n}</span></label>`).join('')}</div></div>
         <div class="field"><span class="lab">Foods you won't eat</span>
@@ -2355,7 +2362,7 @@ function viewSetup() {
       <button class="btn primary big" data-act="save-setup" id="saveBtn">${ic('check')}${state.profile.example ? 'Decide my plan' : 'Save changes'}</button>
     </aside>
     <section class="glass panel fs" aria-label="Your data">
-      <div class="fs-head">${bub('hard-drive', '--fat')}<div><h2 class="h2">Your data</h2><div class="muted small">${store.mode === 'db' ? 'Saved to your Claude account.' : 'Saved on this device only.'}</div></div></div>
+      <div class="fs-head">${bub('hard-drive')}<div><h2 class="h2">Your data</h2><div class="muted small">${store.mode === 'db' ? 'Saved to your Claude account.' : 'Saved on this device only.'}</div></div></div>
       <p class="hint" style="margin:0">Copy a backup to keep your plans, logs and weigh-ins safe, or to move them to another device, such as the iPhone app. Paste it into Notes or a message to yourself.</p>
       <div class="data-acts"><button class="btn sm" data-act="backup-copy">${ic('copy')}Copy backup</button><button class="btn sm" data-act="restore-open" aria-expanded="${!!ui.restore}">${ic('rotate-ccw')}Restore a backup</button></div>
       ${ui.restore ? `<form data-form="restore" class="gset-form">
@@ -2684,7 +2691,8 @@ document.addEventListener('input', e => {
   else if (el.id === 'ask-in' && ui.ask) ui.ask.craving = el.value;
   else if (el.id === 'ai-today-in') ui.todayAI.craving = el.value;
   else if (el.closest('#setupForm') && el.type === 'number') { readSetup(); updateSetupAside(); }
-  else if (el.closest('#qsForm')) readQs();
+  // Radios are read on change instead, which needs the old units to convert the numbers.
+  else if (el.closest('#qsForm') && el.type !== 'radio') readQs();
 });
 document.addEventListener('submit', e => {
   e.preventDefault();
@@ -2692,12 +2700,23 @@ document.addEventListener('submit', e => {
 });
 document.addEventListener('pointerdown', e => { ui.qsTap = !!e.target.closest?.('#qsForm .opt'); }, true);
 document.addEventListener('keydown', () => { ui.qsTap = false; }, true);
+// Escape closes the open inline panel and puts focus back on the button that opened it.
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  let back;
+  if (ui.swap) { back = `[data-act="swap"][data-k="${ui.swap.k}"][data-i="${ui.swap.i}"]`; ui.swap = null; }
+  else if (ui.ask && !ui.ask.busy) { back = `[data-act="ask-open"][data-k="${ui.ask.k}"][data-i="${ui.ask.i}"]`; ui.ask = null; }
+  else if (ui.restore) { readSetup(); ui.restore = false; back = '[data-act="restore-open"]'; }
+  else if (ui.groc.edit) { ui.groc.edit = null; }
+  else return;
+  render(); if (back) $(back)?.focus();
+});
 window.addEventListener('resize', moveThumb);
 const TABS = ['today', 'plan', 'groceries', 'progress', 'setup'];
 window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (h !== ui.tab && TABS.includes(h)) setTab(h); });
 
 /* ---------------- Live background ----------------
-   A WebGL shader that swirls the theme's colour fields together, drifts with time, follows the pointer
+   A WebGL shader that swirls the theme's colour fields together, drifts slowly with time
    and shifts as you scroll. Renders at a third of screen resolution (the gradients are soft, so it
    upscales cleanly) and at most 30 fps; pauses in hidden tabs; draws one still frame for reduced motion.
    Without WebGL the CSS colour blobs stay as the fallback. */
@@ -2712,7 +2731,7 @@ precision highp float;
 #else
 precision mediump float;
 #endif
-uniform vec2 uRes; uniform float uTime; uniform vec2 uMouse; uniform float uScroll;
+uniform vec2 uRes; uniform float uTime; uniform float uScroll;
 uniform vec3 uBg, uC1, uC2, uC3, uC4, uC5;
 float hash(vec2 p) { p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
 float noise(vec2 p) {
@@ -2731,7 +2750,7 @@ void main() {
   float t = uTime * 0.045;
   vec2 q = vec2(fbm(p + vec2(0.0, t)), fbm(p + vec2(5.2, 1.3) - t));
   vec2 r = vec2(fbm(p + 2.4 * q + vec2(1.7, 9.2) + 0.7 * t), fbm(p + 2.4 * q + vec2(8.3, 2.8) - 0.6 * t));
-  vec2 m = (uMouse - 0.5) * uRes / s * 1.7;
+  vec2 m = vec2(0.22, 0.12) * uRes / s * 1.7; // a fixed soft light, upper right
   m.y -= uScroll * 0.45;
   float glow = exp(-1.8 * dot(p - m, p - m));
   vec3 col = uBg;
@@ -2752,15 +2771,13 @@ void main() {
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
   const loc = gl.getAttribLocation(prog, 'a'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
   const U = n => gl.getUniformLocation(prog, n);
-  const u = { res: U('uRes'), time: U('uTime'), mouse: U('uMouse'), scroll: U('uScroll'), bg: U('uBg'), c: [1, 2, 3, 4, 5].map(i => U('uC' + i)) };
+  const u = { res: U('uRes'), time: U('uTime'), scroll: U('uScroll'), bg: U('uBg'), c: [1, 2, 3, 4, 5].map(i => U('uC' + i)) };
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   const rgb = s => { s = s.trim().replace('#', ''); if (s.length === 3) s = s.replace(/./g, x => x + x); const n = parseInt(s, 16) || 0; return [(n >> 16 & 255) / 255, (n >> 8 & 255) / 255, (n & 255) / 255]; };
-  const t0 = performance.now(), mouse = [0.72, 0.62], aim = [0.72, 0.62];
+  const t0 = performance.now();
   let last = 0;
   function draw(now = performance.now()) {
-    mouse[0] += (aim[0] - mouse[0]) * 0.05; mouse[1] += (aim[1] - mouse[1]) * 0.05;
     gl.uniform1f(u.time, reduce.matches ? 40 : 40 + (now - t0) / 1000);
-    gl.uniform2f(u.mouse, mouse[0], mouse[1]);
     gl.uniform1f(u.scroll, scrollY / Math.max(1, innerHeight));
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
@@ -2783,7 +2800,6 @@ void main() {
   $('.backdrop').prepend(cv); document.documentElement.classList.add('live-bg');
   size(); palette(); requestAnimationFrame(loop);
   addEventListener('resize', size);
-  addEventListener('pointermove', e => { aim[0] = e.clientX / innerWidth; aim[1] = 1 - e.clientY / innerHeight; }, { passive: true });
   addEventListener('scroll', () => { if (reduce.matches) draw(); }, { passive: true });
   matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', palette);
   new MutationObserver(palette).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });

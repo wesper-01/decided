@@ -57,9 +57,9 @@ Each recipe has protein, carb and fat ingredients. A box-constrained least-squar
   <img src="docs/look-light.webp" alt="Type and colour: Bricolage Grotesque and Figtree, the emerald accent, ink, muted, the protein, carb and fat colours, and the mist backdrop.">
 </picture>
 
-Glass panels float over a slow emerald mist with a fine film grain. Headings and numbers are set in Bricolage Grotesque, everything else in Figtree. Emerald marks anything you can act on; protein, carbs and fat each keep one colour everywhere they appear. Light and dark follow your device.
+Solid panels sit on a slow emerald mist with a fine film grain. Frosted glass is kept for the few things that float above the page: the tab bar, the next meal and messages. Headings and numbers are set in Bricolage Grotesque, everything else in Figtree. Emerald is the one accent, and the emerald gradient appears only on the main action of a screen. Protein, carbs and fat each keep one colour everywhere they appear. Light and dark follow your device.
 
-All of it lives as tokens at the top of `decided.html`. The images in this README are drawn from those same tokens and real screenshots by `npm run images`.
+The reasons behind each of these choices are in [DESIGN.md](DESIGN.md). The tokens live at the top of `decided.html`, and `npm run images` draws the images in this README from those tokens and real screenshots.
 
 ## Develop
 
@@ -80,6 +80,7 @@ You need Node 18 or newer. There is nothing to install.
 | `tests/check.js` | The checks `npm test` runs, with no test framework. |
 | `tools/` | The local server and icon drawer, and the README image script. |
 | `docs/` | The README images. |
+| `DESIGN.md` | The design direction and the reason for each visual choice. |
 
 Every push to `main` runs the tests and publishes `app/` to GitHub Pages. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 

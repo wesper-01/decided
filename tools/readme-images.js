@@ -72,7 +72,7 @@ body { position: relative; font-family: var(--font-body); color: var(--ink); bac
 .glass { background: var(--sheen), var(--glass); border: 1px solid var(--rim-b); box-shadow: inset 0 1px 0 var(--rim-a), var(--shadow); backdrop-filter: blur(20px) saturate(1.4); }
 .phone { border-radius: 30px; padding: 6px; }
 .phone img { display: block; width: 100%; border-radius: 24px; }
-.eyebrow { font-size: 12px; font-weight: 750; letter-spacing: .09em; text-transform: uppercase; color: color-mix(in srgb, var(--accent) 85%, var(--ink)); }
+.eyebrow { font-size: 13px; font-weight: 700; color: color-mix(in srgb, var(--accent) 85%, var(--ink)); }
 ${css}
 </style><body><div class="mist"></div>${body}`;
 const img = b64 => `<img src="data:image/png;base64,${b64}" alt="">`;
@@ -101,7 +101,7 @@ const strip = (t, shots, cols) => page(t, 880, cols.length === 3 ? 568 : 528, `
   figcaption { display: grid; gap: 3px; text-align: center; }
   figcaption b { font-size: 18px; } figcaption span { font-size: 13.5px; font-weight: 500; line-height: 1.4; }`);
 
-const SWATCHES = [['accent', 'Emerald', 'Actions, progress, the mark'], ['accent-2', 'Sea glass', 'Second stop of every gradient'], ['ink', 'Ink', 'Text'], ['muted', 'Muted', 'Secondary text'],
+const SWATCHES = [['accent', 'Emerald', 'The one accent'], ['accent-2', 'Sea glass', 'Second stop of the main action'], ['ink', 'Ink', 'Text'], ['muted', 'Muted', 'Secondary text'],
   ['prot', 'Protein', 'Macro colour'], ['carb', 'Carbs', 'Macro colour'], ['fat', 'Fat', 'Macro colour'], ['blob-1', 'Mist', 'Main backdrop field']];
 const look = t => page(t, 880, 420, `
   <div class="glass card type">
