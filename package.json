@@ -7,7 +7,8 @@
   "scripts": {
     "test": "node tests/check.js",
     "build": "node build.js",
-    "dev": "node tools/dev-server.js"
+    "dev": "node tools/dev-server.js",
+    "images": "node build.js && node tools/readme-images.js"
   },
   "engines": {
     "node": ">=18"
