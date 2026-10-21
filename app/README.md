@@ -17,16 +17,16 @@ The iPhone installs web apps from an HTTPS address, so this folder needs a host.
 
 ## 3. Bring over your data (optional)
 
-The claude.ai version and the phone keep separate data. To move it:
+Every device keeps its own data; nothing goes through a server. To move it from another phone, a computer or the claude.ai version:
 
-1. In the claude.ai version, open Setup → Your data → **Copy backup**.
-2. Send that text to your phone, for example in Notes or a message to yourself.
-3. In the iPhone app, open Setup → Your data → **Restore a backup**, paste, and confirm.
+1. On the old device, open Setup → Your data → **Save backup file**. On a phone this opens the share sheet: send it to yourself, save it to Files, or AirDrop it.
+2. On the new phone, open the app. On the first screen, tap **Restore a backup** (or later: Setup → Your data → Restore a backup).
+3. Tap **Choose a backup file**, pick the file, then **Replace my data with this backup**.
 
-Install first, then restore: anything you enter in Safari before adding the app to the home screen stays in Safari.
+Copy backup and paste still work if a file is awkward. Install first, then restore: anything you enter in Safari before adding the app to the home screen stays in Safari.
 
 ## Good to know
 
 - Ask Claude and the city price estimates only work inside claude.ai, so the iPhone app hides them. Everything else is the same.
-- Your data lives only on this phone, and removing the icon deletes it. Copy a backup now and then.
+- Your data lives only on this phone, and removing the icon deletes it. Setup shows when you last saved a backup; save one now and then.
 - To update the app: change `decided.html`, run `npm run build` from the folder above this one, and upload this folder again (GitHub Pages does this for you on push). The phone picks up the new version the next time the app opens (occasionally the launch after).

@@ -13,8 +13,8 @@ try {
 } catch {}
 </script>
 <style>
-/* Layout: floating liquid-glass capsules (brand, tab bar, status) over a fixed colour-field backdrop;
-   content sits in glass panels on a 1140px column; the tab bar docks to the bottom on phones.
+/* Layout: solid panels on a 1140px column over a slow emerald-mist backdrop; frosted glass only on what floats
+   (tab bar, Next up, toasts). The tab bar docks to the bottom on phones. Reasons for each choice: DESIGN.md.
    Icons: Lucide (ISC licence, lucide.dev), inlined. */
 :root {
   --bg: #E8F1EB;
@@ -43,7 +43,6 @@ try {
   --rim-c: rgba(14,26,21,.06);
   --sheen: linear-gradient(168deg, rgba(255,255,255,.60) 0%, rgba(255,255,255,.10) 34%, rgba(255,255,255,0) 58%);
   --shadow: 0 20px 46px -22px rgba(18,62,44,.38), 0 3px 10px -4px rgba(18,62,44,.12);
-  --shadow-sm: 0 8px 18px -10px rgba(18,62,44,.40);
   --blob-1: #BFE5D2; --blob-2: #EFE7D6; --blob-3: #C9E4E1; --blob-4: #F6F8F7; --blob-5: #A9DBC3;
   --grain: .45;
   --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
@@ -62,7 +61,6 @@ try {
     --rim-a: rgba(255,255,255,.32); --rim-b: rgba(255,255,255,.09); --rim-c: rgba(0,0,0,.35);
     --sheen: linear-gradient(168deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,.02) 34%, rgba(255,255,255,0) 58%);
     --shadow: 0 24px 52px -24px rgba(0,0,0,.8), 0 3px 10px -4px rgba(0,0,0,.45);
-    --shadow-sm: 0 8px 18px -10px rgba(0,0,0,.7);
     --blob-1: #0B3D2D; --blob-2: #1E1A11; --blob-3: #0A2C28; --blob-4: #030806; --blob-5: #136B4D;
     --grain: .45;
     color-scheme: dark;
@@ -78,7 +76,6 @@ try {
   --rim-a: rgba(255,255,255,.32); --rim-b: rgba(255,255,255,.09); --rim-c: rgba(0,0,0,.35);
   --sheen: linear-gradient(168deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,.02) 34%, rgba(255,255,255,0) 58%);
   --shadow: 0 24px 52px -24px rgba(0,0,0,.8), 0 3px 10px -4px rgba(0,0,0,.45);
-  --shadow-sm: 0 8px 18px -10px rgba(0,0,0,.7);
   --blob-1: #0B3D2D; --blob-2: #1E1A11; --blob-3: #0A2C28; --blob-4: #030806; --blob-5: #136B4D;
   --grain: .45;
   color-scheme: dark;
@@ -198,7 +195,8 @@ main.wrap { padding-block: 10px 80px; }
 input[type="text"], input[type="number"], input[type="date"], input:not([type]) {
   font: 500 15px var(--font-body); color: var(--ink); background: var(--field); border: 1px solid var(--line); border-radius: 14px; padding: 9px 12px; min-height: 44px; width: 100%; min-width: 0;
   box-shadow: inset 0 1px 2px rgba(0,0,0,.05); transition: border-color .2s, box-shadow .2s; }
-input:focus { outline: none; border-color: color-mix(in srgb, var(--accent) 60%, transparent); box-shadow: 0 0 0 4px var(--accent-soft); }
+/* Text fields show focus with their border and ring; ticks and other checkboxes keep the outline above. */
+input:not([type="checkbox"]):not([type="radio"]):focus { outline: none; border-color: color-mix(in srgb, var(--accent) 60%, transparent); box-shadow: 0 0 0 4px var(--accent-soft); }
 input:disabled { opacity: .6; }
 input::placeholder { color: color-mix(in srgb, var(--muted) 80%, transparent); }
 .withic { position: relative; display: block; min-width: 0; }
@@ -252,7 +250,7 @@ input::placeholder { color: color-mix(in srgb, var(--muted) 80%, transparent); }
 .mchips { display: flex; flex-wrap: wrap; gap: 5px; }
 .mchip { --c: var(--accent); display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px 3px 7px; border-radius: 8px; font-size: 12.5px; font-weight: 750; font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--c) 70%, var(--ink)); background: color-mix(in srgb, var(--c) 14%, transparent); }
 .mchip .ic { width: 14px; height: 14px; }
-.m-p { --c: var(--prot); } .m-c { --c: var(--carb); } .m-f { --c: var(--fat); } .m-k { --c: var(--accent); }
+.m-p { --c: var(--prot); } .m-c { --c: var(--carb); } .m-f { --c: var(--fat); }
 .bar { --c: var(--accent); height: 7px; border-radius: 99px; background: color-mix(in srgb, var(--c) 16%, transparent); overflow: hidden; }
 .bar > i { display: block; height: 100%; max-width: 100%; border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--c) 75%, white), var(--c)); transition: width .8s var(--spring); }
 .bar.over > i { background: var(--bad); }
@@ -371,7 +369,6 @@ details .mchips { margin-top: 10px; }
 .tb-h { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; font-size: 13px; font-weight: 700; color: color-mix(in srgb, var(--c) 80%, var(--ink)); }
 .tb-h .ic { width: 15px; height: 15px; }
 .tb-h b { margin-left: auto; color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
-.groc-wrap { margin-top: 22px; }
 .groc { columns: 2 280px; column-gap: 28px; }
 .groc section { break-inside: avoid; margin-bottom: 18px; }
 .groc h4 { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; font-size: 13px; font-weight: 700; color: var(--muted); }
@@ -645,7 +642,7 @@ i.hm-future { background: none; box-shadow: inset 0 0 0 1px var(--line); opacity
 .qs-sum b { font-size: 16px; }
 .qs-nav { display: flex; gap: 8px; justify-content: flex-end; }
 .qs-nav .btn.primary { min-width: 150px; }
-.qs-skip { text-align: center; margin: 0; font-size: 13.5px; color: var(--muted); }
+.qs-skip { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 18px; margin: 0; font-size: 13.5px; color: var(--muted); }
 @media (max-width: 720px) { .qs-nav .btn.primary { flex: 1; } }
 
 /* Touch screens: 16px text in fields stops iOS zooming in on focus, and no grey flash on tap */
@@ -655,6 +652,7 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   input[type], input:not([type]), .selectbox select, textarea.copyout { font-size: 16px; }
   /* Fingers need 44px targets; small controls grow, and the round ones get an invisible hit area. */
   .btn.sm, .seg span, .chips span, .segb, .qchip, .daytype { min-height: 44px; }
+  .qs-skip .linkbtn { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; }
   .btn.icon.sm { width: 44px; }
   .glassbtn { height: 44px; }
   .tick, .xchip button { position: relative; }
@@ -699,7 +697,6 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 const ICONS = {
   'apple': '<path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/><path d="M10 2c1 .5 2 2 2 5"/>',
   'ban': '<circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/>',
-  'banknote': '<rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
   'bed': '<path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/>',
   'beef': '<circle cx="12.5" cy="8.5" r="2.5"/><path d="M12.5 2a6.5 6.5 0 0 0-6.22 4.6c-1.1 3.13-.78 3.9-3.18 6.08A3 3 0 0 0 5 18c4 0 8.4-1.8 11.4-4.3A6.5 6.5 0 0 0 12.5 2Z"/><path d="m18.5 6 2.19 4.5a6.48 6.48 0 0 1 .31 2 6.49 6.49 0 0 1-2.6 5.2C15.4 20.2 11 22 7 22a3 3 0 0 1-2.68-1.66L2.4 16.5"/>',
   'bike': '<circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/>',
@@ -740,10 +737,8 @@ const ICONS = {
   'message-circle': '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
   'milk': '<path d="M8 2h8"/><path d="M9 2v2.789a4 4 0 0 1-.672 2.219l-.656.984A4 4 0 0 0 7 10.212V20a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-9.789a4 4 0 0 0-.672-2.219l-.656-.984A4 4 0 0 1 15 4.788V2"/><path d="M7 15a6.472 6.472 0 0 1 5 0 6.47 6.47 0 0 0 5 0"/>',
   'minus': '<path d="M5 12h14"/>',
-  'moon': '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
   'package': '<path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/><path d="m7.5 4.27 9 5.15"/>',
   'pencil': '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
-  'percent': '<line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
   'piggy-bank': '<path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/>',
   'plus': '<path d="M5 12h14"/><path d="M12 5v14"/>',
   'receipt': '<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/>',
@@ -759,7 +754,6 @@ const ICONS = {
   'sliders-horizontal': '<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>',
   'sofa': '<path d="M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3"/><path d="M2 16a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z"/><path d="M4 18v2"/><path d="M20 18v2"/><path d="M12 4v9"/>',
   'square': '<rect width="18" height="18" x="3" y="3" rx="2"/>',
-  'store': '<path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"/>',
   'sun': '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
   'target': '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
   'trash-2': '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
@@ -2324,7 +2318,7 @@ function viewStart() {
       ${q.err ? `<div class="err" role="alert">${esc(q.err)}</div>` : ''}
       <div class="qs-nav">${step > 1 ? `<button type="button" class="btn ghost" data-act="qs-back">${ic('chevron-left')}Back</button>` : ''}<button class="btn primary">${step === 3 ? `${ic('check')}Decide my plan` : `Next${ic('chevron-right')}`}</button></div>
     </form>
-    <p class="qs-skip">${step === 1 ? '<button type="button" class="linkbtn" data-act="qs-skip">Look around first</button> · ' : ''}<button type="button" class="linkbtn" data-act="qs-full">Use the full setup</button></p>
+    <p class="qs-skip">${step === 1 ? '<button type="button" class="linkbtn" data-act="qs-skip">Look around first</button>' : ''}<button type="button" class="linkbtn" data-act="qs-full">Use the full setup</button>${step === 1 ? '<button type="button" class="linkbtn" data-act="qs-restore">Restore a backup</button>' : ''}</p>
   </div>`;
 }
 function qsNext() {
@@ -2396,7 +2390,7 @@ function viewSetup() {
         </div>` : ''}
       </section>
       <section class="glass panel fs">
-        <div class="fs-head">${bub('dumbbell', '--s-dinner')}<h2 class="h2">Training and cooking</h2></div>
+        <div class="fs-head">${bub('dumbbell')}<h2 class="h2">Training and cooking</h2></div>
         <div class="field"><span class="lab">Training days</span><div class="chips pos">${WEEKDAYS.map(([v, n]) => `<label><input type="checkbox" name="trainDays" value="${v}" ${prefs.trainDays.includes(v) ? 'checked' : ''}><span>${ic('check')}${n}</span></label>`).join('')}</div></div>
         <div class="field"><span class="lab">Calories across the week</span><div class="seg">${radio('cycle', '0', 'Same every day', prefs.cycle ? '1' : '0')}${radio('cycle', '1', 'More on training days', prefs.cycle ? '1' : '0')}</div>
           <p class="hint" style="margin:0">Training days get more food, mostly as carbs to fuel the session. Rest days get less, so the week averages the same.</p></div>
@@ -2672,6 +2666,8 @@ const ACTIONS = {
   'qs-back': () => { readQs(); ui.qs.step = Math.max(1, ui.qs.step - 1); ui.qs.err = ''; render(); },
   'qs-skip': () => { try { localStorage.setItem(QS_SKIP, '1'); } catch {} ui.qs = null; setTab('today'); },
   'qs-full': () => { ui.qs = null; setTab('setup'); },
+  // A new phone: skip the questions and go straight to restoring the backup from the old one.
+  'qs-restore': () => { ui.qs = null; ui.restore = true; setTab('setup'); $('[aria-label="Your data"]')?.scrollIntoView({ block: 'start' }); $('#restore-file')?.focus(); },
   undo: () => { const u = ui.undo; ui.undo = null; $('#toast').hidden = true; u?.(); },
   fav: b => {
     const id = b.dataset.rid, favs = state.prefs.favs, on = !favs.includes(id);
@@ -2790,7 +2786,7 @@ document.addEventListener('change', e => {
   const el = e.target;
   if (el.id === 'restore-file' && el.files[0]) {
     // A chosen file only fills the box; "Replace my data with this backup" still asks before anything changes.
-    el.files[0].text().then(t => { $('#restore-in').value = t; $('#restore-err').textContent = parseBackup(t).err || ''; });
+    el.files[0].text().then(t => { const box = $('#restore-in'); if (!box) return; box.value = t; $('#restore-err').textContent = parseBackup(t).err || ''; });
   } else if (el.dataset?.act === 'eat') {
     const d = getDay(el.dataset.k); d.eaten[+el.dataset.i] = el.checked; save('day-' + el.dataset.k); render();
   } else if (el.dataset?.act === 'tick') {
