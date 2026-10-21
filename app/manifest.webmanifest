@@ -1,0 +1,30 @@
+{
+  "name": "Decided",
+  "short_name": "Decided",
+  "description": "Stop deciding. Start changing. Every meal, portion and grocery for your bulk or cut, decided for you.",
+  "id": "./",
+  "start_url": "./?source=home",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#E8F1EB",
+  "theme_color": "#E8F1EB",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

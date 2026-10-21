@@ -1,0 +1,15 @@
+{
+  "name": "decided",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Stop deciding. Start changing. An open-source nutrition app that decides your meals, portions and groceries for a bulk, cut or recomp.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node tests/check.js",
+    "build": "node build.js",
+    "dev": "node tools/dev-server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
