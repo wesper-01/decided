@@ -69,6 +69,10 @@ check('the quick start guesses units and country and validates answers', quick.u
 const backup = run(`profile(); resetPrefs(); week(); const b = JSON.parse(backupText()); return { app: b.app, days: Object.keys(b.days).length };`);
 check('a backup holds the profile and every day', backup.app === 'bulk-cut-kitchen' && backup.days === 7, `${backup.days} days`);
 
+const restore = run(`profile(); resetPrefs(); week(); const good = parseBackup(backupText());
+  return { days: Object.keys(good.s?.days || {}).length, junk: parseBackup('hello').err, other: parseBackup('{"app":"other"}').err };`);
+check('a backup file reads back, and anything else is refused', restore.days === 7 && !!restore.junk && !!restore.other, `${restore.days} days back`);
+
 // Every screen renders without stray "undefined" or "NaN".
 const views = run(`
   profile(); resetPrefs({ cycle: true, trainDays: [1, 3, 5], batch: 2 }); week();

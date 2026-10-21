@@ -601,6 +601,9 @@ i.hm-future { background: none; box-shadow: inset 0 0 0 1px var(--line); opacity
 
 /* Your data */
 .data-acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.filepick { position: relative; justify-self: start; }
+.filepick input { position: absolute; inset: 0; width: 100%; opacity: 0; cursor: pointer; }
+.filepick:focus-within { outline: 2.5px solid var(--accent); outline-offset: 2px; }
 
 /* Next up: the one meal to eat now, ringed in accent so it is the first thing you see */
 .nextup { display: grid; gap: 12px; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 40%, transparent), inset 0 1px 0 var(--rim-a), var(--shadow); }
@@ -1322,7 +1325,7 @@ function isStale(d, t) { return !!d?.plan?.length && (d.pk !== prefsKey() || Mat
 const LS_KEY = 'bck-v1';
 const state = { profile: { ...EXAMPLE_PROFILE }, prefs: clone(DEFAULT_PREFS), weights: {}, days: {} };
 const store = { mode: 'loading', db: null, uid: null, timers: {}, chains: {}, inflight: 0, dirty: new Set() };
-const ui = { tab: 'today', todayKey: TODAY(), planKey: TODAY(), planWeek: 0, groc: { period: 'week', edit: null, priceBusy: false, priceErr: '', priceCtl: null }, copyText: '', ask: null, todayAI: { busy: false, err: '', meal: null, craving: '', ctl: null }, draft: null, draftTouched: false, sample: null, animRings: true, swap: null, quick: [], undo: null, restore: false, qs: null, qsTap: false };
+const ui = { tab: 'today', todayKey: TODAY(), planKey: TODAY(), planWeek: 0, groc: { period: 'week', edit: null, priceBusy: false, priceErr: '', priceCtl: null }, copyText: '', ask: null, todayAI: { busy: false, err: '', meal: null, craving: '', ctl: null }, draft: null, draftTouched: false, sample: null, animRings: true, swap: null, quick: [], undo: null, restore: false, qs: null, qsTap: false, persisted: null };
 
 function applyState(s) {
   if (!s) return;
@@ -2303,6 +2306,7 @@ function qsFinish() {
   ui.qs = null; ui.todayKey = TODAY();
   try { localStorage.removeItem(QS_SKIP); } catch {}
   setTab('today');
+  keepData();
   toast(`Your week is decided. Next up: ${state.days[TODAY()].plan.find(Boolean)?.name || 'your first meal'}.`);
 }
 
@@ -2365,11 +2369,15 @@ function viewSetup() {
       <button class="btn primary big" data-act="save-setup" id="saveBtn">${ic('check')}${state.profile.example ? 'Decide my plan' : 'Save changes'}</button>
     </aside>
     <section class="glass panel fs" aria-label="Your data">
-      <div class="fs-head">${bub('hard-drive')}<div><h2 class="h2">Your data</h2><div class="muted small">${store.mode === 'db' ? 'Saved to your Claude account.' : 'Saved on this device only.'}</div></div></div>
-      <p class="hint" style="margin:0">Copy a backup to keep your plans, logs and weigh-ins safe, or to move them to another device, such as the iPhone app. Paste it into Notes or a message to yourself.</p>
-      <div class="data-acts"><button class="btn sm" data-act="backup-copy">${ic('copy')}Copy backup</button><button class="btn sm" data-act="restore-open" aria-expanded="${!!ui.restore}">${ic('rotate-ccw')}Restore a backup</button></div>
+      <div class="fs-head">${bub('hard-drive')}<div><h2 class="h2">Your data</h2><div class="muted small">${store.mode === 'db' ? 'Saved to your Claude account.' : 'Saved only on this device. Nothing is sent anywhere.'}</div></div></div>
+      ${store.mode === 'db' ? '' : `<p class="hint" style="margin:0">${ui.persisted === true ? 'This browser has agreed to keep your data, so it stays until you delete it.'
+        : 'The browser can clear it if the device runs low on space, and Safari can clear it after a week without a visit. Adding Decided to your home screen keeps it safe from that.'}
+        ${lastBackup() ? `Last backup: ${agoText(lastBackup())}.` : 'No backup saved from this device yet.'}</p>`}
+      <p class="hint" style="margin:0">A backup file holds your plans, logs and weigh-ins. Keep one somewhere safe, or open it on a new phone to move everything across.</p>
+      <div class="data-acts"><button class="btn sm" data-act="backup-file">${ic('hard-drive')}Save backup file</button><button class="btn sm" data-act="backup-copy">${ic('copy')}Copy backup</button><button class="btn sm" data-act="restore-open" aria-expanded="${!!ui.restore}">${ic('rotate-ccw')}Restore a backup</button></div>
       ${ui.restore ? `<form data-form="restore" class="gset-form">
-        <textarea id="restore-in" class="copyout" placeholder="Paste the backup text here" aria-label="Backup text"></textarea>
+        <label class="btn sm filepick">${ic('hard-drive')}Choose a backup file<input type="file" id="restore-file" accept=".json,application/json,text/plain"></label>
+        <textarea id="restore-in" class="copyout" placeholder="Or paste the backup text here" aria-label="Backup text"></textarea>
         <div class="err" id="restore-err" role="alert"></div>
         <div class="data-acts"><button class="btn primary sm">${ic('check')}Replace my data with this backup</button><button type="button" class="btn ghost sm" data-act="restore-cancel">Cancel</button></div>
       </form>` : ''}
@@ -2378,10 +2386,44 @@ function viewSetup() {
   </div>`;
 }
 const backupText = () => JSON.stringify({ app: 'bulk-cut-kitchen', v: 1, at: new Date().toISOString(), profile: state.profile, prefs: state.prefs, weights: state.weights, days: state.days });
+// Returns the backup, or the reason it can't be used.
+function parseBackup(text) {
+  let s; try { s = JSON.parse(String(text).trim()); } catch { return { err: "That isn't a backup. Use the whole file or the whole text you copied." }; }
+  if (s?.app !== 'bulk-cut-kitchen' || !s.profile || !s.prefs || !(s.profile.weightKg > 0)) return { err: "That isn't a Decided backup." };
+  return { s };
+}
+
+/* Keeping data on the device. There is no server: the browser's storage is the only copy, so the app asks the
+   browser to keep it, and makes a backup file easy to save, share to another phone and restore. */
+const LAST_BACKUP = 'bck-last-backup';
+const lastBackup = () => { try { return localStorage.getItem(LAST_BACKUP); } catch { return null; } };
+const backedUp = () => { try { localStorage.setItem(LAST_BACKUP, new Date().toISOString()); } catch {} };
+function agoText(iso) {
+  const d = Math.floor((Date.now() - Date.parse(iso)) / 864e5);
+  return d <= 0 ? 'today' : d === 1 ? 'yesterday' : `${d} days ago`;
+}
+// null until checked; then true (the browser promised to keep it), false (it may clear it) or 'n/a' (no such API).
+async function keepData() {
+  const st = navigator.storage;
+  if (!st?.persist) { ui.persisted = 'n/a'; return; }
+  try { ui.persisted = (await st.persisted()) || (await st.persist()); } catch { ui.persisted = false; }
+  if (ui.tab === 'setup') render();
+}
+async function backupFile() {
+  const name = `decided-backup-${TODAY()}.json`, file = new File([backupText()], name, { type: 'application/json' });
+  // Phones get the share sheet (Files, Drive, AirDrop, a message to yourself); computers get a download.
+  if (matchMedia('(pointer: coarse)').matches && navigator.canShare?.({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: 'Decided backup' }); }
+    catch (e) { if (e.name !== 'AbortError') toast("Sharing didn't work. Try Copy backup instead."); return; }
+  } else {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = name;
+    document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }
+  backedUp(); if (ui.tab === 'setup') render(); toast(`Backup saved as ${name}.`);
+}
 function restoreBackup() {
-  const err = $('#restore-err'); let s;
-  try { s = JSON.parse($('#restore-in').value.trim()); } catch { err.textContent = "That isn't a backup. Paste the whole text you copied."; return; }
-  if (s?.app !== 'bulk-cut-kitchen' || !s.profile || !s.prefs || !(s.profile.weightKg > 0)) { err.textContent = "That isn't a Decided backup."; return; }
+  const err = $('#restore-err'), { s, err: why } = parseBackup($('#restore-in').value);
+  if (why) { err.textContent = why; return; }
   const oldDays = Object.keys(state.days);
   state.weights = {}; state.days = {};
   applyState({ profile: s.profile, prefs: s.prefs, weights: s.weights || {}, days: s.days || {} });
@@ -2389,7 +2431,8 @@ function restoreBackup() {
   oldDays.filter(k => !state.days[k]).forEach(k => dropDoc('day-' + k));
   save('profile'); save('weights'); Object.keys(state.days).forEach(k => save('day-' + k));
   ui.restore = false; ui.draftTouched = false; setTab('today');
-  toast(`Backup restored: ${Object.keys(state.days).length} days and ${Object.keys(state.weights).length} weigh-ins.`);
+  const nd = Object.keys(state.days).length, nw = Object.keys(state.weights).length;
+  toast(`Backup restored: ${nd} day${nd === 1 ? '' : 's'} and ${nw} weigh-in${nw === 1 ? '' : 's'}.`);
 }
 function readSetup() {
   const f = $('#setupForm'); if (!f) return;
@@ -2584,7 +2627,8 @@ const ACTIONS = {
     replaceMeal(s.k, s.i, m); ui.swap = null; render(); toast(`Swapped to ${m.name}.`, undo);
   },
   'copy-plan': () => copyOut(planText(planKeys()), 'Meal plan copied.', 'Meal plan text'),
-  'backup-copy': () => copyOut(backupText(), 'Backup copied. Paste it somewhere safe, like Notes.', 'Backup text'),
+  'backup-copy': () => { copyOut(backupText(), 'Backup copied. Paste it somewhere safe, like Notes.', 'Backup text'); backedUp(); },
+  'backup-file': () => backupFile(),
   'restore-open': () => { readSetup(); ui.restore = !ui.restore; render(); $('#restore-in')?.focus(); },
   'restore-cancel': () => { readSetup(); ui.restore = false; render(); },
   'ask-open': b => {
@@ -2663,7 +2707,10 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('change', e => {
   const el = e.target;
-  if (el.dataset?.act === 'eat') {
+  if (el.id === 'restore-file' && el.files[0]) {
+    // A chosen file only fills the box; "Replace my data with this backup" still asks before anything changes.
+    el.files[0].text().then(t => { $('#restore-in').value = t; $('#restore-err').textContent = parseBackup(t).err || ''; });
+  } else if (el.dataset?.act === 'eat') {
     const d = getDay(el.dataset.k); d.eaten[+el.dataset.i] = el.checked; save('day-' + el.dataset.k); render();
   } else if (el.dataset?.act === 'tick') {
     const ticks = readTicks(ui.groc.period); if (el.checked) ticks[el.dataset.id] = 1; else delete ticks[el.dataset.id];
@@ -2819,6 +2866,7 @@ liveBackdrop();
 if (ui.tab === 'setup') ui.draft = clone({ profile: state.profile, prefs: state.prefs });
 if (state.profile.example) planDay(TODAY());
 setSync(state.profile.example ? 'example' : 'loading');
+if (!state.profile.example) keepData();
 render();
 requestAnimationFrame(() => { moveThumb(); requestAnimationFrame(() => $('.tabbar').classList.add('ready')); });
 document.fonts?.ready.then(moveThumb);
