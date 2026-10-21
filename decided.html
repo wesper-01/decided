@@ -353,12 +353,13 @@ details .mchips { margin-top: 10px; }
 .daychip .s { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; font-weight: 600; }
 .daychip[aria-pressed="true"] { color: var(--accent-ink); background: var(--accent); box-shadow: none; }
 .daychip[aria-pressed="true"] .s { color: inherit; opacity: .85; }
-.totals { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px 32px; align-items: center; margin-bottom: 18px; }
+.totals { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 18px 32px; align-items: center; margin-bottom: 18px; }
 @media (max-width: 640px) { .totals { grid-template-columns: minmax(0, 1fr); } }
-.tot-bars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+/* Each bar needs room for "Carbs 377 / 377 g"; narrower than that, the bars stack instead of overlapping. */
+.tot-bars { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
 @media (max-width: 520px) { .tot-bars { grid-template-columns: minmax(0, 1fr); } }
 .tb { --c: var(--accent); display: grid; gap: 7px; min-width: 0; }
-.tb-h { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: color-mix(in srgb, var(--c) 80%, var(--ink)); }
+.tb-h { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; font-size: 13px; font-weight: 700; color: color-mix(in srgb, var(--c) 80%, var(--ink)); }
 .tb-h .ic { width: 15px; height: 15px; }
 .tb-h b { margin-left: auto; color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
 .groc-wrap { margin-top: 22px; }
@@ -506,6 +507,8 @@ td.n, th.n { text-align: right; }
 .selectbox { position: relative; display: block; min-width: 0; }
 .selectbox select { appearance: none; -webkit-appearance: none; width: 100%; min-height: 44px; padding: 9px 38px 9px 40px; font: 500 15px var(--font-body); color: var(--ink); background: var(--field); border: 1px solid var(--line); border-radius: 14px; box-shadow: inset 0 1px 2px rgba(0,0,0,.05); cursor: pointer; text-overflow: ellipsis; }
 .selectbox select:focus { outline: none; border-color: color-mix(in srgb, var(--accent) 60%, transparent); box-shadow: 0 0 0 4px var(--accent-soft); }
+/* The open list is drawn by the system; give options the theme's own colours so dark mode stays readable. */
+.selectbox option { background: var(--bg); color: var(--ink); }
 .selectbox > .ic { position: absolute; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
 .selectbox > .ic:first-child { left: 13px; }
 .selectbox > .ic:last-child { right: 12px; }
