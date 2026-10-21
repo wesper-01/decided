@@ -13,7 +13,7 @@
 
 Most people who want to lose fat or build muscle already know roughly what to do. What stops them is the hundred small decisions in between: how much to eat, what to cook tonight, what to buy, whether today went well enough. Decided makes those decisions for you, so the only thing left is to follow the plan.
 
-It is free and open source. It runs in the browser from one HTML file, with no account and no server, and your data stays on your device.
+It is free and open source. It runs in the browser from one HTML file, with no account and no server, and your data stays on your device. Apart from loading its fonts, it goes online only when you tap to check prices.
 
 ## Three questions, then it's decided
 
@@ -34,7 +34,7 @@ Pick a goal, enter your age, height and weight, and say what you don't eat. Deci
 - **Today** shows one thing: the next meal. Tap "Done, I ate it" or "Not this one". The rings fill as the day goes.
 - **Plan** builds every day of the week from 43 recipes, each portioned to your targets. Swap a meal for one of five close alternatives, favourite recipes you want more often, hide the ones you never want.
 - **Training days and batch cooking:** more food on the days you train and less on rest days, with the same weekly average. Lunches and dinners can be cooked once for two or three days.
-- **Groceries** turns the plan into a shopping list for 7 or 30 days, with amounts, cost by aisle and by day, and an optional budget the planner fits the week into. Prices cover 39 countries and can be adjusted for your city or set by hand.
+- **Groceries** turns the plan into a shopping list for 7 or 30 days, with amounts, cost by aisle and by day, and an optional budget the planner fits the week into. Prices cover 39 countries. One tap checks them online against today's exchange rate and real shop prices people share on [Open Prices](https://prices.openfoodfacts.org), and any price can be set by hand.
 - **Progress** draws your weight trend, measures your real maintenance calories from your own logs, and keeps a streak and a five-week calendar.
 - **The small things:** water, one-tap re-adding of recent foods, undo, and backup files you can save, share to another phone and restore.
 - **Look and feel:** light, dark or match the device, larger text, less motion, and the water tracker on or off. Each device keeps its own choices.
@@ -44,6 +44,8 @@ Pick a goal, enter your age, height and weight, and say what you don't eat. Deci
 Targets start from the Mifflin-St Jeor equation, your activity level and your goal. Once you have logged at least 10 days of food in three weeks, plus some weigh-ins, Decided compares what you ate with how your weight moved and offers your measured maintenance in place of the formula. One tap switches your targets over.
 
 Each recipe has protein, carb and fat ingredients. A box-constrained least-squares fit scales them so the day's meals add up to your targets, keeping every portion within sensible limits. The test suite checks that planned days land within 6% of calories and protein across six different bodies and goals.
+
+Prices start from built-in averages for each country. **Check prices online** in Groceries updates the exchange rate for your currency, then reads recent prices from the 100 busiest shops in your country on Open Prices. Each food needs at least five comparable prices (organic and discounted prices are left out), and the median is used only if it lands within a third and three times the built-in estimate. Otherwise the food keeps the country average. In October 2026 that covered most foods in France, about half in the United States, Germany and Norway, and few elsewhere; adding receipts to Open Prices improves them for everyone. The check sends food categories and your country, nothing about you.
 
 ## Use it
 
@@ -68,7 +70,7 @@ You need Node 18 or newer. There is nothing to install.
 
 | Command | What it does |
 | --- | --- |
-| `npm test` | Checks the planner (macro accuracy, diets, batch cooking, calorie cycling, budgets, streaks, quick start, backups) and that every screen renders. |
+| `npm test` | Checks the planner (macro accuracy, diets, batch cooking, calorie cycling, budgets, shop prices, streaks, quick start, backups) and that every screen renders. |
 | `npm run build` | Rebuilds `app/` from `decided.html`. |
 | `npm run dev` | Serves `app/` at http://localhost:4819. Open `/__icons` there to redraw the app icons. |
 | `npm run images` | Rebuilds `app/`, then redraws the README images in `docs/`. Needs Chrome or Edge. |
@@ -87,7 +89,7 @@ Every push to `main` runs the tests and publishes `app/` to GitHub Pages. Read [
 
 ## A note on nutrition
 
-Food values and prices are typical averages, not measurements of what's in your kitchen. Decided is not medical advice. If you have a medical condition, are pregnant, or have a history of disordered eating, talk to a professional before changing how you eat.
+Food values and prices are typical averages, not measurements of what's in your kitchen or the shop you use. Decided is not medical advice. If you have a medical condition, are pregnant, or have a history of disordered eating, talk to a professional before changing how you eat.
 
 ## Licence
 

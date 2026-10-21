@@ -28,5 +28,6 @@ Copy backup and paste still work if a file is awkward. Install first, then resto
 ## Good to know
 
 - Ask Claude and the city price estimates only work inside claude.ai, so the iPhone app hides them. Everything else is the same.
+- **Check prices online** (Groceries → Where you shop) needs a connection. It fetches today's exchange rate and shared shop prices for your country, then works offline with them.
 - Your data lives only on this phone, and removing the icon deletes it. Setup shows when you last saved a backup; save one now and then.
 - To update the app: change `decided.html`, run `npm run build` from the folder above this one, and upload this folder again (GitHub Pages does this for you on push). The phone picks up the new version the next time the app opens (occasionally the launch after).

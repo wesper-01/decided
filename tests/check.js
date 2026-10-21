@@ -85,6 +85,25 @@ const restore = run(`profile(); resetPrefs(); week(); const good = parseBackup(b
   return { days: Object.keys(good.s?.days || {}).length, junk: parseBackup('hello').err, other: parseBackup('{"app":"other"}').err };`);
 check('a backup file reads back, and anything else is refused', restore.days === 7 && !!restore.junk && !!restore.other, `${restore.days} days back`);
 
+const lookups = run(`return { noRate: COUNTRIES.filter(c => !FX_AT[c.iso]).map(c => c.code), noFood: Object.keys(SHOP).filter(id => !BUY[id] || !FOOD[id]) };`);
+check('every country has an exchange rate and every shop lookup a food', !lookups.noRate.length && !lookups.noFood.length, [...lookups.noRate, ...lookups.noFood].join(', '));
+
+// Open Prices entries become prices per kg, and only a steady median close to the estimate is used.
+const shop = run(`
+  const loose = (price, per) => ({ type: 'CATEGORY', price, price_per: per }), pack = (price, q, u, labels = []) => ({ type: 'PRODUCT', price, product: { product_quantity: q, product_quantity_unit: u, labels_tags: labels } });
+  const kg = [shopPerKg(loose(2, 'KILOGRAM'), SHOP.banana), shopPerKg(loose(0.3, 'UNIT'), SHOP.banana), shopPerKg(pack(1.5, 500, 'g'), SHOP.pasta), shopPerKg(pack(1.2, 1, 'L'), SHOP.milk),
+    shopPerKg(pack(3, 500, 'g', ['en:organic']), SHOP.pasta), shopPerKg(pack(2, null, ''), SHOP.pasta), shopPerKg({ ...pack(1, 500, 'g'), price_is_discounted: true, price_without_discount: 2 }, SHOP.pasta)];
+  const five = [2, 2.4, 2.6, 3, 40].map(v => pack(v / 2, 500, 'g'));
+  return { kg, median: shopPrice('pasta', five, 2.5), few: shopPrice('pasta', five.slice(0, 4), 2.5), off: shopPrice('pasta', five, 0.5) };`);
+check('shop prices convert to per kg and skip organic, unweighed and discounted prices', JSON.stringify(shop.kg) === JSON.stringify([2, 2.5, 3, 1.2, null, null, 4]), JSON.stringify(shop.kg));
+check('a shop price needs five prices near the estimate', shop.median === 2.6 && shop.few === null && shop.off === null, `median ${shop.median}, four prices ${shop.few}, far off ${shop.off}`);
+
+const order = run(`
+  profile(); resetPrefs({ country: 'FR', area: 0.15, shopPrices: { pasta: 2 }, shopPricesFor: 'FR', prices: { rice_cakes: 9 } });
+  const a = [priceOf('pasta').v, priceOf('rice_cakes').v];
+  state.prefs.country = 'DE'; return [...a, priceOf('pasta').shop || false];`);
+check('your own price comes first, then shop prices for your country only', order[0] === 2.3 && order[1] === 9 && order[2] === false, JSON.stringify(order));
+
 // Every screen renders without stray "undefined" or "NaN".
 const views = run(`
   profile(); resetPrefs({ cycle: true, trainDays: [1, 3, 5], batch: 2 }); week();

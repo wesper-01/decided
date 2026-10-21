@@ -409,6 +409,7 @@ td.n, th.n { text-align: right; }
 .wform { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; align-items: end; }
 .wform .btn { grid-column: 1 / -1; }
 .hint { font-size: 13px; color: var(--muted); margin: 12px 0 0; }
+.hint a { color: color-mix(in srgb, var(--accent) 85%, var(--ink)); font-weight: 700; text-underline-offset: 2px; }
 .warn-note { display: flex; gap: 8px; align-items: flex-start; color: var(--ink); }
 .warn-note .ic { width: 16px; height: 16px; flex: none; margin-top: 1px; color: var(--warn); }
 .wlist { list-style: none; margin: 14px 0 0; padding: 0; font-size: 14px; font-variant-numeric: tabular-nums; }
@@ -907,6 +908,30 @@ K('IN', 'India', '₹', 'INR', 'before', 25); K('PK', 'Pakistan', 'Rs', 'PKR', '
 K('PH', 'Philippines', '₱', 'PHP', 'before', 28); K('JP', 'Japan', '¥', 'JPY', 'before', 112); K('KR', 'South Korea', '₩', 'KRW', 'before', 1380);
 K('CN', 'China', '¥', 'CNY', 'before', 3.6); K('AU', 'Australia', 'A$', 'AUD', 'before', 1.37); K('NZ', 'New Zealand', 'NZ$', 'NZD', 'before', 1.58);
 const countryOf = code => COUNTRIES.find(c => c.code === code) || null;
+// Units per US dollar on 21 October 2026, the rates the factors above were checked against. Checking prices
+// online fetches today's rate, so prices follow a currency that has fallen or risen since.
+const FX_AT = { USD: 1, CAD: 1.406, MXN: 18.44, BRL: 5.023, COP: 3154, CLP: 981.3, GBP: 0.7483, EUR: 0.8908, CHF: 0.8253, SEK: 9.907,
+  NOK: 9.402, DKK: 6.663, PLN: 3.892, TRY: 49.6, MAD: 9.799, DZD: 134.6, TND: 2.996, EGP: 54.49, SAR: 3.75, AED: 3.672, QAR: 3.64,
+  ZAR: 16.4, NGN: 1333, INR: 95, PKR: 277, IDR: 18000, PHP: 63.09, JPY: 158.2, KRW: 1327, CNY: 6.691, AUD: 1.429, NZD: 1.76 };
+// Where each food sits in Open Prices (prices.openfoodfacts.org), an open database of prices people copy from
+// receipts and shelf tags. r: loose produce priced per kg, or per piece with the grams in one piece; p: packs
+// with the weight on the pack. Foods left out have too few matching prices anywhere yet.
+const SHOP = {
+  chicken_breast: 'p en:chicken-breasts', chicken_thigh: 'p en:chicken-thighs', beef_lean: 'p en:ground-meats', steak: 'p en:beef-steaks', pork_loin: 'p en:pork-loin',
+  salmon: 'p en:salmon-fillets', tuna: 'p en:canned-tunas', cod: 'p en:cod-fillets', sardines: 'p en:canned-sardines', shrimp: 'p en:shrimps',
+  eggs: 'p en:chicken-eggs', greek_yogurt: 'p en:greek-style-yogurts', cottage_cheese: 'p en:cottage-cheeses', whey: 'p en:protein-powders',
+  feta: 'p en:feta', cheddar: 'p en:cheddar-cheese', parmesan: 'p en:parmigiano-reggiano', milk: 'p en:semi-skimmed-milks', soy_milk: 'p en:soy-based-drinks',
+  oat_milk: 'p en:oat-based-drinks', tofu: 'p en:tofu', tempeh: 'p en:tempeh', edamame: 'p en:edamame', lentils: 'p en:lentils', chickpeas: 'p en:chickpeas',
+  black_beans: 'p en:black-beans', white_rice: 'p en:long-grain-rices', brown_rice: 'p en:brown-rices', quinoa: 'p en:quinoa', couscous: 'p en:couscous',
+  pasta: 'p en:dry-pastas', rice_noodles: 'p en:rice-noodles', potato: 'r en:potatoes', sweet_potato: 'r en:sweet-potatoes', oats: 'p en:rolled-oats',
+  granola: 'p en:mueslis', bread: 'p en:sliced-breads', tortilla: 'p en:tortillas', pita: 'p en:pitas', rice_cakes: 'p en:puffed-rice-cakes',
+  banana: 'r en:bananas 120', apple: 'r en:apples 180', berries: 'p en:frozen-berries', dates: 'p en:dates', avocado: 'r en:avocados 200',
+  broccoli: 'r en:broccoli 400', spinach: 'r en:spinachs', salad: 'r en:lettuces 300', tomato: 'r en:tomatoes', pepper: 'r en:sweet-peppers 160',
+  green_beans: 'p en:frozen-green-beans', zucchini: 'r en:zucchini 250', onion: 'r en:onions', mushrooms: 'r en:mushrooms', cucumber: 'r en:cucumbers 350',
+  carrots: 'r en:carrots', stirfry_veg: 'p en:frozen-vegetables', olive_oil: 'p en:extra-virgin-olive-oils', butter: 'p en:butters', peanut_butter: 'p en:peanut-butters',
+  almonds: 'p en:almonds', walnuts: 'p en:walnuts', chia: 'p en:chia', hummus: 'p en:hummus', pesto: 'p en:pestos', coconut_milk: 'p en:coconut-milks',
+  honey: 'p en:honeys', salsa: 'p en:salsa', soy_sauce: 'p en:soy-sauces', passata: 'p en:tomato-purees',
+};
 
 /* ---------------- Recipes ----------------
    Item: "<group> <food|food:base> <base>"  groups: P protein, C carbs, F fat (scaled to hit macros),
@@ -1083,6 +1108,7 @@ const TIMES = [[0, 'Any time'], [30, '30 min or less'], [15, '15 min or less']];
 const EXAMPLE_PROFILE = { sex: 'm', age: 24, heightCm: 178, weightKg: 75, activity: 'moderate', goal: 'leanbulk', units: 'metric', tdeeOverride: null, example: true };
 const DEFAULT_PREFS = { diet: 'any', avoid: [], dislikes: [], maxTime: 0, meals: 4,
   country: 'US', city: '', area: 0, currency: '$', curPos: 'before', priceScale: 1, prices: {}, cityPrices: {}, cityPricesFor: '', cityPricesAt: '',
+  shopPrices: {}, shopPricesFor: '', shopPricesAt: '', fxRatio: 1, fxAt: '',
   budget: 0, budgetPeriod: 'week', budgetFit: false,
   favs: [], blocked: [], trainDays: [], cycle: false, batch: 1 };
 // Training days use JS day numbers (0 is Sunday), listed Monday first.
@@ -1342,7 +1368,7 @@ function isStale(d, t) { return !!d?.plan?.length && (d.pk !== prefsKey() || Mat
 const LS_KEY = 'bck-v1';
 const state = { profile: { ...EXAMPLE_PROFILE }, prefs: clone(DEFAULT_PREFS), weights: {}, days: {} };
 const store = { mode: 'loading', db: null, uid: null, timers: {}, chains: {}, inflight: 0, dirty: new Set() };
-const ui = { tab: 'today', todayKey: TODAY(), planKey: TODAY(), planWeek: 0, groc: { period: 'week', edit: null, priceBusy: false, priceErr: '', priceCtl: null }, copyText: '', ask: null, todayAI: { busy: false, err: '', meal: null, craving: '', ctl: null }, draft: null, draftTouched: false, sample: null, animRings: true, swap: null, quick: [], undo: null, restore: false, qs: null, qsTap: false, persisted: null };
+const ui = { tab: 'today', todayKey: TODAY(), planKey: TODAY(), planWeek: 0, groc: { period: 'week', edit: null, priceBusy: false, priceErr: '', priceCtl: null, shopBusy: false, shopErr: '', shopCtl: null, shopDone: 0, shopAll: 0 }, copyText: '', ask: null, todayAI: { busy: false, err: '', meal: null, craving: '', ctl: null }, draft: null, draftTouched: false, sample: null, animRings: true, swap: null, quick: [], undo: null, restore: false, qs: null, qsTap: false, persisted: null };
 
 function applyState(s) {
   if (!s) return;
@@ -1837,10 +1863,12 @@ function planText(keys) {
 
 /* ---------------- Groceries ---------------- */
 const buyInfo = id => { const b = BUY[id] || [1, 5]; return { mult: b[0], price: b[1], name: b[2] || FOOD[id].name }; };
-// Your own price wins, then Claude's estimate for your city, then the default scaled to your country and area.
+// Your own price wins, then real shop prices for your country, then Claude's estimate for your city,
+// then the default scaled to your country, its exchange rate and your area.
 function priceOf(id) {
-  const own = state.prefs.prices?.[id], city = state.prefs.cityPrices?.[id];
+  const p = state.prefs, own = p.prices?.[id], shop = p.shopPricesFor === p.country ? p.shopPrices?.[id] : null, city = p.cityPrices?.[id];
   if (own != null) return { v: own, own: true };
+  if (shop != null) return { v: Math.round(shop * (1 + (p.area || 0)) * 100) / 100, own: false, shop: true };
   if (city != null) return { v: city, own: false, city: true };
   return { v: Math.round(buyInfo(id).price * (state.prefs.priceScale || 1) * 100) / 100, own: false };
 }
@@ -1856,7 +1884,7 @@ const weeklyBudget = () => { const p = state.prefs, b = p.budget || 0; return p.
 // so the app says so instead of quietly missing it.
 let floorMemo = { key: '', v: 0 }, scratch = false;
 function cheapestWeek() {
-  const p = state.prefs, key = JSON.stringify([prefsKey(), targets(), p.country, p.area, p.priceScale, p.prices, p.cityPrices]);
+  const p = state.prefs, key = JSON.stringify([prefsKey(), targets(), p.country, p.area, p.priceScale, p.prices, p.cityPrices, p.shopPrices]);
   if (floorMemo.key === key) return floorMemo.v;
   const real = { days: state.days, prefs: state.prefs };
   scratch = true; state.days = {}; state.prefs = { ...p, budget: 0.01, budgetPeriod: 'day', budgetFit: true };
@@ -1930,7 +1958,7 @@ function donut(st) {
 }
 function groceryRow(i, ticks) {
   const pr = priceOf(i.id), f = FOOD[i.id], b = buyInfo(i.id), done = !!ticks[i.id], per = f.ml ? 'litre' : 'kg';
-  const row = `<div class="gitem${done ? ' done' : ''}"><input class="tick sm" type="checkbox" id="t-${i.id}" data-act="tick" data-id="${i.id}" ${done ? 'checked' : ''}><label class="g-main" for="t-${i.id}"><span class="nm">${esc(b.name)}</span><span class="sub">${esc(money(pr.v))} per ${per}${pr.own ? ' · your price' : pr.city ? ' · local estimate' : ''}</span></label><span class="amt">${buyAmount(i.id, i.g)}</span><button class="g-cost" data-act="price-edit" data-id="${i.id}" aria-label="Edit the price of ${esc(b.name)}" title="Edit price">${esc(money(i.cost))}${ic('pencil')}</button></div>`;
+  const row = `<div class="gitem${done ? ' done' : ''}"><input class="tick sm" type="checkbox" id="t-${i.id}" data-act="tick" data-id="${i.id}" ${done ? 'checked' : ''}><label class="g-main" for="t-${i.id}"><span class="nm">${esc(b.name)}</span><span class="sub">${esc(money(pr.v))} per ${per}${pr.own ? ' · your price' : pr.shop ? ' · shop price' : pr.city ? ' · local estimate' : ''}</span></label><span class="amt">${buyAmount(i.id, i.g)}</span><button class="g-cost" data-act="price-edit" data-id="${i.id}" aria-label="Edit the price of ${esc(b.name)}" title="Edit price">${esc(money(i.cost))}${ic('pencil')}</button></div>`;
   if (ui.groc.edit !== i.id) return row;
   return row + `<form class="price-form" data-form="price" data-id="${i.id}"><label class="unitbox"><input id="price-in" type="number" step="0.01" min="0" inputmode="decimal" value="${pr.v}" aria-label="Price per ${per}"><span>${esc(state.prefs.currency || '$')} / ${f.ml ? 'l' : 'kg'}</span></label><button class="btn sm primary">${ic('check')}Save</button>${pr.own ? `<button type="button" class="btn sm" data-act="price-reset" data-id="${i.id}">Use default</button>` : ''}<button type="button" class="btn sm ghost" data-act="price-cancel">Cancel</button></form>`;
 }
@@ -2013,10 +2041,18 @@ function budgetPanel() {
 function wherePanel() {
   const p = state.prefs, c = countryOf(p.country), g = ui.groc, city = (p.city || '').trim(), place = [city, c?.name].filter(Boolean).join(', ');
   const area = (v, label) => `<label><input type="radio" name="gw-area" value="${v}" ${Number(p.area || 0) === v ? 'checked' : ''}><span>${label}</span></label>`;
-  const source = p.cityPricesFor ? `Claude's estimate for ${esc(p.cityPricesFor)}, ${esc(dayName(p.cityPricesAt))}` : c ? `${esc(c.name)} averages${p.area > 0 ? ', pricier area' : p.area < 0 ? ', cheaper area' : ''}` : 'your own price level';
-  const ai = ui.sample ? `<div class="where-ai">${g.priceBusy
-      ? `${thinking(`Claude is pricing ${FOODS.length} foods for ${esc(place || 'your area')}. This can take a minute.`)}<button class="btn sm" data-act="price-stop">${ic('square')}Stop</button>`
-      : `<button class="btn sm${p.cityPricesFor ? '' : ' primary'}" data-act="city-prices">${ic('message-circle')}${p.cityPricesFor ? 'Refresh' : 'Estimate'} prices for ${esc(city || c?.name || 'my area')}</button>${p.cityPricesFor ? '<button class="btn ghost sm" data-act="city-prices-clear">Use country averages</button>' : ''}`}</div>${g.priceErr ? `<div class="err">${esc(g.priceErr)}</div>` : ''}` : '';
+  const checked = c && p.shopPricesFor === p.country && p.shopPricesAt, nShop = checked ? Object.keys(p.shopPrices || {}).length : 0;
+  const rest = p.cityPricesFor ? `Claude's estimate for ${esc(p.cityPricesFor)}, ${esc(dayName(p.cityPricesAt))}` : c ? `${esc(c.name)} averages${p.area > 0 ? ', pricier area' : p.area < 0 ? ', cheaper area' : ''}` : 'your own price level';
+  const source = nShop ? `shop prices for ${nShop} foods, ${esc(dayName(p.shopPricesAt))}; the rest from ${rest}` : rest;
+  const online = !c ? '' : g.shopBusy
+    ? `${thinking(`Checking shop prices in ${esc(c.name)}: <span id="shop-n">${g.shopDone}</span> of ${g.shopAll} foods`)}<button class="btn sm" data-act="shop-stop">${ic('square')}Stop</button>`
+    : `<button class="btn sm" data-act="shop-prices">${ic('refresh-cw')}${checked ? 'Check prices again' : 'Check prices online'}</button>`;
+  const ai = !ui.sample ? '' : g.priceBusy
+    ? `${thinking(`Claude is pricing ${FOODS.length} foods for ${esc(place || 'your area')}. This can take a minute.`)}<button class="btn sm" data-act="price-stop">${ic('square')}Stop</button>`
+    : `<button class="btn sm" data-act="city-prices">${ic('message-circle')}${p.cityPricesFor ? 'Refresh' : 'Estimate'} prices for ${esc(city || c?.name || 'my area')}</button>`;
+  const clear = !g.shopBusy && !g.priceBusy && (nShop || p.cityPricesFor) ? '<button class="btn ghost sm" data-act="prices-clear">Use country averages</button>' : '';
+  const errs = [g.shopErr, g.priceErr].filter(Boolean).map(e => `<div class="err">${esc(e)}</div>`).join('');
+  const few = checked && nShop < 10 && !g.shopBusy ? `<p class="hint">Only ${nShop ? `${nShop} of ${Object.keys(SHOP).length} foods have` : 'a few foods have'} enough shared shop prices in ${esc(c.name)} so far, so the rest keep country averages. Adding prices from your receipts at <a href="https://prices.openfoodfacts.org" target="_blank" rel="noopener">Open Prices</a> helps everyone near you.</p>` : '';
   return `<section class="glass panel gset" id="where" aria-label="Where you shop">
     <div class="card-head">${bub('map-pin')}<div><h2 class="h2">Where you shop</h2><div class="muted small">Prices: ${source}</div></div></div>
     <form id="grocWhere" class="gset-form">
@@ -2025,8 +2061,10 @@ function wherePanel() {
       <div class="field"><span class="lab">Prices around you</span><div class="seg">${area(-0.1, 'Cheaper')}${area(0, 'Average')}${area(0.15, 'Pricier')}</div></div>
       ${c ? '' : `<div class="fields"><label class="field"><span class="lab">Currency</span><input id="gw-cur" maxlength="4" value="${esc(p.currency || '$')}" autocomplete="off"></label><label class="field"><span class="lab">Price level</span><span class="unitbox"><input id="gw-scale" type="number" step="0.05" min="0.01" inputmode="decimal" value="${p.priceScale || 1}"><span>×</span></span></label></div>`}
     </form>
-    ${ai}
-    <p class="hint">Your country sets the currency and a typical price level. These are rough and drift over time${ui.sample ? ', so let Claude estimate your city' : ''}, or tap any price in the list to set what you really pay. Meat is listed raw; rice, pasta and lentils dry; beans canned.</p>
+    ${online || ai || clear ? `<div class="where-ai">${online}${ai}${clear}</div>` : ''}${errs}
+    ${few}
+    <p class="hint">Your country sets the currency and a typical price level. Check prices online to use today's exchange rate and, where enough people share them, real shop prices from <a href="https://prices.openfoodfacts.org" target="_blank" rel="noopener">Open Prices</a>. It sends food categories and your country, nothing about you.${ui.sample ? ' Claude can also estimate your city.' : ''} Tap any price in the list to set what you really pay. Meat is listed raw; rice, pasta and lentils dry; beans canned.</p>
+    <p class="hint small">Shop prices: Open Prices by Open Food Facts, ODbL. <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">Rates by Exchange Rate API</a>.</p>
   </section>`;
 }
 async function estimateCityPrices() {
@@ -2052,7 +2090,7 @@ async function estimateCityPrices() {
     for (const f of FOODS) {
       const v = Number(out[f.id]); if (!(v > 0 && v < 1e8)) continue;
       // Ignore answers wildly off the country's level (a unit mix-up, usually).
-      const expect = buyInfo(f.id).price * (c ? c.f : p.priceScale || 1);
+      const expect = buyInfo(f.id).price * (c ? c.f * (p.fxRatio || 1) : p.priceScale || 1);
       if (c && (v < expect * 0.2 || v > expect * 5)) continue;
       got[f.id] = Math.round(v * 100) / 100;
     }
@@ -2064,6 +2102,64 @@ async function estimateCityPrices() {
     g.priceErr = e?.code === 'cancelled' ? '' : e?.code === 'bad_prices' ? "Claude's prices looked off for too many foods, so nothing changed. Try again." : aiErr(e);
   }
   g.priceBusy = false; render();
+}
+// One Open Prices entry as a price per kg (or litre), or null when it can't be compared: organic, no weight on
+// the pack, or a loose item priced some other way. Discounts are ignored so the price is the usual one.
+const PACK_G = { g: 1, kg: 1000, ml: 1, cl: 10, l: 1000 };
+function shopPerKg(it, spec) {
+  const [kind, , piece] = spec.split(' '), v = it.price_is_discounted && it.price_without_discount > 0 ? it.price_without_discount : it.price;
+  if (!(v > 0) || [...(it.labels_tags || []), ...(it.product?.labels_tags || [])].some(l => /organic|biolog/.test(l))) return null;
+  if (kind === 'r') return it.type !== 'CATEGORY' ? null : it.price_per === 'KILOGRAM' ? v : it.price_per === 'UNIT' && piece ? v * 1000 / piece : null;
+  const pr = it.product, g = pr ? pr.product_quantity * (PACK_G[(pr.product_quantity_unit || '').toLowerCase()] || 0) : 0;
+  return g >= 20 ? v * 1000 / g : null;
+}
+// The median of at least five prices, kept only within a third and three times the built-in estimate:
+// further out, the category has usually caught a different product.
+function shopPrice(id, items, expect) {
+  const v = items.map(it => shopPerKg(it, SHOP[id])).filter(x => x != null).sort((a, b) => a - b), n = v.length;
+  if (n < 5) return null;
+  const m = (v[(n - 1) >> 1] + v[n >> 1]) / 2;
+  return m >= expect / 3 && m <= expect * 3 ? Math.round(m * 100) / 100 : null;
+}
+// Today's exchange rate for every country, and the median recent shop price of each food in yours, from the
+// busiest 100 shops there. Runs only when asked. Stopping keeps the new rate and leaves shop prices as they were.
+const OPEN_PRICES = 'https://prices.openfoodfacts.org/api/v1/';
+async function checkPrices() {
+  const g = ui.groc, p = state.prefs, c = countryOf(p.country);
+  if (g.shopBusy || !c) return;
+  const ids = Object.keys(SHOP);
+  Object.assign(g, { shopBusy: true, shopErr: '', shopCtl: new AbortController(), shopDone: 0, shopAll: ids.length }); render();
+  const get = async url => { const r = await fetch(url, { signal: g.shopCtl.signal }); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); };
+  let rateOk = false;
+  try {
+    const rate = (await get('https://open.er-api.com/v6/latest/USD').catch(e => { if (e.name === 'AbortError') throw e; return null; }))?.rates?.[c.iso];
+    if (rate > 0 && FX_AT[c.iso]) {
+      Object.assign(p, { fxRatio: Math.round(rate / FX_AT[c.iso] * 1e4) / 1e4, fxAt: TODAY(), priceScale: Math.round(c.f * (rate / FX_AT[c.iso]) * (1 + (p.area || 0)) * 1000) / 1000 });
+      save('profile'); rateOk = true;
+    }
+    const all = await get(`${OPEN_PRICES}locations/osm/countries`), row = (Array.isArray(all) ? all : all.items || []).find(x => x.country_code_2 === c.code);
+    const shops = row?.price_count >= 200 ? (await get(`${OPEN_PRICES}locations?osm_address_country__like=${encodeURIComponent(row.osm_name)}&price_count__gte=3&order_by=-price_count&size=100`)).items
+      .filter(l => l.osm_address_country_code === c.code).map(l => l.id) : [];
+    const got = {}, since = addDays(TODAY(), -548);
+    let failed = 0;
+    const one = async id => {
+      const [kind, tag] = SHOP[id].split(' ');
+      const j = await get(`${OPEN_PRICES}prices?${kind === 'r' ? 'category_tag' : 'product__categories_tags__contains'}=${encodeURIComponent(tag)}&currency=${c.iso}&location_id__in=${shops.join(',')}&date__gte=${since}&order_by=-date&size=100`)
+        .catch(e => { if (e.name === 'AbortError') throw e; failed++; return null; });
+      const v = j && shopPrice(id, (j.items || []).filter(it => it.location?.osm_address_country_code === c.code), buyInfo(id).price * c.f * (p.fxRatio || 1));
+      if (v != null) got[id] = v;
+      g.shopDone++; const el = $('#shop-n'); if (el) el.textContent = g.shopDone;
+    };
+    if (shops.length) { let next = 0; await Promise.all(Array.from({ length: 4 }, async () => { while (next < ids.length) await one(ids[next++]); })); }
+    if (failed > ids.length / 2) throw new Error('Open Prices failed');
+    Object.assign(p, { shopPrices: got, shopPricesFor: c.code, shopPricesAt: TODAY() });
+    save('profile');
+    const n = Object.keys(got).length;
+    toast(n ? `Shop prices for ${n} of ${ids.length} foods in ${c.name}${rateOk ? ', and today\'s exchange rate' : ''}.` : `Not enough shared shop prices in ${c.name} yet${rateOk ? ', so only the exchange rate was updated' : ''}.`);
+  } catch (e) {
+    g.shopErr = e?.name === 'AbortError' ? '' : `Couldn't reach ${rateOk ? 'Open Prices' : 'the price services'}${rateOk ? ', but the exchange rate is updated' : ''}. Check your connection and try again.`;
+  }
+  g.shopBusy = false; render();
 }
 function applyBudget(el) {
   const p = state.prefs;
@@ -2078,12 +2174,13 @@ function applyWhere(el) {
     p.country = el.value; const c = countryOf(p.country);
     if (c) { p.currency = c.sym; p.curPos = c.pos; }
     if (p.cityPricesFor) Object.assign(p, { cityPrices: {}, cityPricesFor: '', cityPricesAt: '' });
+    Object.assign(p, { shopPrices: {}, shopPricesFor: '', shopPricesAt: '', fxRatio: 1, fxAt: '' });
   } else if (el?.id === 'gw-city') p.city = el.value.trim().slice(0, 60);
   else if (el?.name === 'gw-area') p.area = Number(el.value) || 0;
   else if (el?.id === 'gw-cur') { p.currency = el.value.trim().slice(0, 4) || '$'; p.curPos = p.currency.length > 1 && /[A-Za-z]/.test(p.currency) ? 'after' : 'before'; }
   else if (el?.id === 'gw-scale') { const v = num(el.value); if (v > 0) p.priceScale = v; }
   const c = countryOf(p.country);
-  if (c) p.priceScale = Math.round(c.f * (1 + (p.area || 0)) * 1000) / 1000;
+  if (c) p.priceScale = Math.round(c.f * (p.fxRatio || 1) * (1 + (p.area || 0)) * 1000) / 1000;
   const cleared = p.currency !== before && Object.keys(p.prices || {}).length;
   if (cleared) p.prices = {};
   save('profile'); render();
@@ -2624,7 +2721,9 @@ const ACTIONS = {
   'price-reset': b => { delete state.prefs.prices[b.dataset.id]; save('profile'); ui.groc.edit = null; render(); toast('Back to the default price.'); },
   'city-prices': () => estimateCityPrices(),
   'price-stop': () => ui.groc.priceCtl?.abort(),
-  'city-prices-clear': () => { Object.assign(state.prefs, { cityPrices: {}, cityPricesFor: '', cityPricesAt: '' }); save('profile'); render(); toast('Back to country averages.'); },
+  'prices-clear': () => { Object.assign(state.prefs, { cityPrices: {}, cityPricesFor: '', cityPricesAt: '', shopPrices: {}, shopPricesFor: '', shopPricesAt: '' }); save('profile'); render(); toast('Back to country averages.'); },
+  'shop-prices': () => checkPrices(),
+  'shop-stop': () => ui.groc.shopCtl?.abort(),
   'scroll-where': () => $('#where')?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }),
   'budget-rebuild': () => {
     // Every day of the period, including ones not decided yet, so the total covers the whole week or month.
