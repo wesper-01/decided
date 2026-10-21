@@ -55,6 +55,18 @@ const budget = run(`
   return { free: cost(false), fitted: cost(true) };`);
 check('fitting a budget makes the week cheaper', budget.fitted < budget.free * 0.9, `$${budget.free.toFixed(2)} → $${budget.fitted.toFixed(2)}`);
 
+// A monthly budget the food can meet is met over 30 days; one it can't is reported with the real cheapest month.
+const monthly = run(`
+  profile(); const month = budget => { resetPrefs({ budget, budgetPeriod: 'month', budgetFit: true }); floorMemo = { key: '', v: 0 };
+    Array.from({ length: 30 }, (_, n) => addDays(TODAY(), n)).forEach(planDay); return { cost: groceryStats('month').cost, floor: cheapestWeek() * 30 / 7 }; };
+  const free = (() => { resetPrefs(); Array.from({ length: 30 }, (_, n) => addDays(TODAY(), n)).forEach(planDay); return groceryStats('month').cost; })();
+  const floor = month(1).floor, ok = month(Math.round(floor * 1.05)), tight = month(Math.round(floor * 0.8));
+  return { free, floor, okCost: ok.cost, okCap: Math.round(floor * 1.05), tightCost: tight.cost, tightCap: Math.round(floor * 0.8) };`);
+check('a monthly budget is met when the food allows it', monthly.okCost <= monthly.okCap * 1.02 && monthly.okCost < monthly.free * 0.8,
+  `$${monthly.free.toFixed(0)} unbudgeted, $${monthly.okCost.toFixed(0)} against $${monthly.okCap}`);
+check('a budget below the cheapest month is reported, not quietly missed', monthly.floor > monthly.tightCap && monthly.tightCost <= monthly.floor * 1.04,
+  `cheapest month $${monthly.floor.toFixed(0)}, $${monthly.tightCost.toFixed(0)} against $${monthly.tightCap}`);
+
 const streak = run(`
   profile(); resetPrefs();
   for (let n = 1; n <= 12; n++) { const k = addDays(TODAY(), -n); planDay(k); state.days[k].eaten = state.days[k].plan.map(() => n !== 6); }

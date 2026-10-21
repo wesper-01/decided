@@ -403,6 +403,8 @@ td.n, th.n { text-align: right; }
 .wform { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; align-items: end; }
 .wform .btn { grid-column: 1 / -1; }
 .hint { font-size: 13px; color: var(--muted); margin: 12px 0 0; }
+.warn-note { display: flex; gap: 8px; align-items: flex-start; color: var(--ink); }
+.warn-note .ic { width: 16px; height: 16px; flex: none; margin-top: 1px; color: var(--warn); }
 .wlist { list-style: none; margin: 14px 0 0; padding: 0; font-size: 14px; font-variant-numeric: tabular-nums; }
 .wlist li { display: flex; align-items: center; gap: 10px; padding: 4px 0; border-top: 1px solid var(--line); }
 .wlist li span:nth-child(2) { margin-left: auto; font-weight: 700; }
@@ -1213,17 +1215,19 @@ function mealCands(slot, t, prefs, avoid, recent) {
     for (const cheap of costT && r.items.some(i => i.vary) ? [false, true] : [false]) {
       const b = buildMeal(r, slot, t, prefs, cheap); if (!b) continue;
       let sc = mealScore(b.meal, t) + 0.12 * b.bend + (recent.has(r.id) ? 0.2 : 0) - (prefs.favs?.includes(r.id) ? 0.11 : 0);
-      if (costT) sc += 0.8 * Math.max(0, mealCost(b.meal) / costT - 1);
+      if (costT) sc += 2 * Math.max(0, mealCost(b.meal) / costT - 1);
       cands.push({ m: b.meal, sc });
     }
   }
   return cands.sort((a, b) => a.sc - b.sc);
 }
-function pickMeal(slot, t, prefs, avoid, recent) {
-  const cands = mealCands(slot, t, prefs, avoid, recent);
-  if (!cands.length) return avoid.size ? pickMeal(slot, t, prefs, new Set(), recent) : null;
+// Picks at random among the near-best candidates. planDay passes the scored list in, so a day's attempts
+// score each slot once; the pick is a copy because tuning a day changes portions in place.
+function pickMeal(slot, t, prefs, avoid, recent, all = mealCands(slot, t, prefs, new Set(), recent)) {
+  const free = all.filter(c => !avoid.has(c.m.rid)), cands = free.length ? free : all;
+  if (!cands.length) return null;
   const pool = cands.filter(c => c.sc <= cands[0].sc + 0.12).slice(0, 6);
-  return pool[Math.floor(Math.random() * pool.length)].m;
+  return clone(pool[Math.floor(Math.random() * pool.length)].m);
 }
 // The best few other recipes for one meal, one per recipe, for the swap picker.
 function swapOptions(k, i) {
@@ -1285,19 +1289,23 @@ function planDay(k) {
     } else { plan.push(null); frozen.push(false); }
   });
   old.forEach((m, idx) => { if (m && oldEaten[idx] && !kept.has(idx)) d.log.push(logFromMeal(m)); });
-  // Try a few combinations and keep the day that lands closest to the calorie and protein targets.
+  // Try a few combinations and keep the day that lands closest to the calorie and protein targets,
+  // and, when fitting a budget, inside this day's share of it.
+  const wb = state.prefs.budgetFit ? weeklyBudget() : 0, dayCap = wb ? wb / 7 * t.kcal / Math.max(1, targets().kcal) : 0;
+  const scored = sl.map(([slot, share], idx) => plan[idx] ? null : mealCands(slot, shareT(t, share), state.prefs, new Set(), recent));
   let best = null;
-  for (let attempt = 0; attempt < 8; attempt++) {
+  for (let attempt = 0; attempt < (dayCap ? 14 : 8); attempt++) {
     const tryPlan = plan.slice(), tryUsed = new Set(used);
     sl.forEach(([slot, share], idx) => {
       if (tryPlan[idx]) return;
-      const m = pickMeal(slot, shareT(t, share), state.prefs, tryUsed, recent);
+      const m = pickMeal(slot, shareT(t, share), state.prefs, tryUsed, recent, scored[idx]);
       if (m) tryUsed.add(m.rid);
       tryPlan[idx] = m;
     });
     tuneDay(tryPlan, t, frozen);
     const pt = zero(); tryPlan.forEach(m => m && add(pt, itemsTotals(m.items)));
-    const err = Math.abs(pt.kcal - t.kcal) / t.kcal + Math.abs(pt.p - t.p) / t.p;
+    const cost = dayCap ? tryPlan.reduce((s, m) => s + mealCost(m), 0) : 0;
+    const err = Math.abs(pt.kcal - t.kcal) / t.kcal + Math.abs(pt.p - t.p) / t.p + (dayCap ? 3 * Math.max(0, cost / dayCap - 1) : 0);
     if (!best || err < best.err) best = { plan: tryPlan, err };
     if (err < 0.03) break;
   }
@@ -1349,7 +1357,7 @@ const SYNC = {
 function setSync(s) { const el = $('#sync'), [i, t, sp] = SYNC[s]; el.dataset.s = s; el.title = t; el.innerHTML = `${ic(i, sp ? 'spin' : '')}<span>${t}</span>`; }
 function syncIdle() { if (state.profile.example) return setSync('example'); if (store.mode !== 'db') return setSync('local'); if (!store.inflight && Object.values(store.timers).every(x => !x)) setSync('db'); }
 function save(key) {
-  if (state.profile.example && key !== 'weights') return;
+  if (scratch || (state.profile.example && key !== 'weights')) return;
   lsWrite();
   if (store.mode === 'loading') { store.dirty.add(key); return; }
   if (store.mode !== 'db') return syncIdle();
@@ -1834,6 +1842,21 @@ function money(v, whole) {
 }
 const mealCost = m => (m?.items || []).reduce((s, i) => s + i.q * buyInfo(i.f).mult / 1000 * priceOf(i.f).v, 0);
 const weeklyBudget = () => { const p = state.prefs, b = p.budget || 0; return p.budgetPeriod === 'day' ? b * 7 : p.budgetPeriod === 'month' ? b * 7 / 30 : b; };
+// About the least a week can cost while still hitting your targets: the planner itself, asked for the cheapest
+// possible week on a scratch copy of the next 7 days. Below this a budget can't be met without eating less,
+// so the app says so instead of quietly missing it.
+let floorMemo = { key: '', v: 0 }, scratch = false;
+function cheapestWeek() {
+  const p = state.prefs, key = JSON.stringify([prefsKey(), targets(), p.country, p.area, p.priceScale, p.prices, p.cityPrices]);
+  if (floorMemo.key === key) return floorMemo.v;
+  const real = { days: state.days, prefs: state.prefs };
+  scratch = true; state.days = {}; state.prefs = { ...p, budget: 0.01, budgetPeriod: 'day', budgetFit: true };
+  let v = 0;
+  try { for (let n = 0; n < 7; n++) { const k = addDays(TODAY(), n); planDay(k); v += state.days[k].plan.reduce((s, m) => s + mealCost(m), 0); } }
+  finally { scratch = false; state.days = real.days; state.prefs = real.prefs; }
+  floorMemo = { key, v };
+  return v;
+}
 function placeLabel() {
   const p = state.prefs, c = countryOf(p.country);
   return `${[(p.city || '').trim(), c ? c.name : 'Custom prices'].filter(Boolean).join(', ')} · ${c ? c.iso : p.currency || '$'}`;
@@ -1960,8 +1983,10 @@ function viewGroceries() {
   </div>`;
 }
 function budgetPanel() {
-  const p = state.prefs, wb = weeklyBudget(), len = periodLen(ui.groc.period), wk = groceryStats('week');
-  const est = wk.planned === 7 ? wk.cost : wk.perDay * 7, over = est > wb;
+  // Compared over the period the list shows: the next 7 days, or the next 30 against the monthly amount.
+  const p = state.prefs, wb = weeklyBudget(), len = periodLen(ui.groc.period), st = groceryStats(ui.groc.period);
+  const cap = wb * len / 7, est = st.planned === len ? st.cost : st.perDay * len, over = est > cap * 1.005;
+  const floor = p.budgetFit && wb ? cheapestWeek() * len / 7 : 0, tooTight = floor > cap * 1.01;
   const radio = (v, label) => `<label><input type="radio" name="gb-period" value="${v}" ${p.budgetPeriod === v ? 'checked' : ''}><span>${label}</span></label>`;
   return `<section class="glass panel gset" aria-label="Your budget">
     <div class="card-head">${bub('piggy-bank', '--accent')}<div><h2 class="h2">Your budget</h2><div class="muted small">${wb ? `${esc(money(wb, true))} a week · ${esc(money(wb * 30 / 7, true))} a month` : 'No budget set yet'}</div></div></div>
@@ -1970,9 +1995,10 @@ function budgetPanel() {
       <div class="field"><span class="lab">Per</span><div class="seg">${radio('day', 'Day')}${radio('week', 'Week')}${radio('month', 'Month')}</div></div>
       <label class="check"><input type="checkbox" class="tick sm" id="gb-fit" ${p.budgetFit ? 'checked' : ''}>Plan meals to fit this budget</label>
     </form>
-    ${wb && wk.planned ? `<div class="tb" style="--c:var(${over ? '--bad' : '--accent'})"><div class="tb-h"><span>Next 7 days, estimated</span><b>${esc(money(est, true))} / ${esc(money(wb, true))}</b></div>${bar(est, wb, over ? '--bad' : '--accent')}</div>` : ''}
+    ${wb && st.planned ? `<div class="tb" style="--c:var(${over ? '--bad' : '--accent'})"><div class="tb-h"><span>Next ${len} days${st.planned === len ? '' : ', estimated'}</span><b>${esc(money(est, true))} / ${esc(money(cap, true))}</b></div>${bar(est, cap, over ? '--bad' : '--accent')}</div>` : ''}
+    ${tooTight ? `<p class="hint warn-note">${ic('triangle-alert')}<span>The cheapest ${len === 30 ? 'month' : 'week'} that still hits your targets costs about ${esc(money(floor, true))} at these prices. Decided gets as close as it can without cutting your food.</span></p>` : ''}
     ${p.budgetFit && wb ? `<button class="btn sm${over ? ' primary' : ''}" data-act="budget-rebuild">${ic('rotate-ccw')}Rebuild the next ${len} days to fit</button>` : ''}
-    <p class="hint">${p.budgetFit ? 'New and rebuilt plans swap in cheaper recipes and proteins when a meal costs more than its share of the budget. Your macros still come first, so a very tight budget can stay a little over.' : 'Turn on fitting and new plans favour cheaper recipes and proteins while still hitting your macros.'}</p>
+    <p class="hint">${p.budgetFit ? 'New and rebuilt plans pick cheaper recipes and proteins when a meal costs more than its share of the budget, without cutting your food.' : 'Turn on fitting and new plans favour cheaper recipes and proteins while still hitting your macros.'}</p>
   </section>`;
 }
 function wherePanel() {
@@ -2556,9 +2582,13 @@ const ACTIONS = {
   'city-prices-clear': () => { Object.assign(state.prefs, { cityPrices: {}, cityPricesFor: '', cityPricesAt: '' }); save('profile'); render(); toast('Back to country averages.'); },
   'scroll-where': () => $('#where')?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }),
   'budget-rebuild': () => {
-    let n = 0; for (const k of periodKeys(ui.groc.period)) if (state.days[k]?.plan?.length) { planDay(k); save('day-' + k); n++; }
-    render(); const s = groceryStats('week');
-    toast(n ? `Rebuilt ${n} day${n > 1 ? 's' : ''}. The next 7 days now come to about ${money(s.planned === 7 ? s.cost : s.perDay * 7, true)}.` : 'No planned days to rebuild yet.');
+    // Every day of the period, including ones not decided yet, so the total covers the whole week or month.
+    const keys = periodKeys(ui.groc.period), undo = undoDays(keys);
+    keys.forEach(k => { planDay(k); save('day-' + k); });
+    render();
+    const s = groceryStats(ui.groc.period), cap = weeklyBudget() * keys.length / 7, gap = s.cost - cap;
+    toast(gap <= cap * 0.005 ? `Rebuilt ${keys.length} days: about ${money(s.cost, true)}, inside your ${money(cap, true)}.`
+      : `Rebuilt ${keys.length} days: about ${money(s.cost, true)}, ${money(gap, true)} over. That's as low as it goes without cutting your food.`, undo);
   },
   'day-prev': () => { ui.todayKey = addDays(ui.todayKey, -1); ui.animRings = true; render(); },
   'day-next': () => { ui.todayKey = addDays(ui.todayKey, 1); ui.animRings = true; render(); },
