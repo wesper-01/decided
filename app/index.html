@@ -18,6 +18,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Figtree:wght@400;500;600;700;800&display=swap">
+<script id="look">
+// Look and feel is chosen per device in Setup; applied before the first paint so the page never flashes the wrong theme.
+try {
+  const l = JSON.parse(localStorage.getItem('bck-look') || '{}'), r = document.documentElement;
+  if (l.theme === 'light' || l.theme === 'dark') r.dataset.theme = l.theme;
+  if (l.size === 'large') r.dataset.size = 'large';
+  if (l.motion === 'less') r.dataset.motion = 'less';
+} catch {}
+</script>
 <style>
 /* Layout: floating liquid-glass capsules (brand, tab bar, status) over a fixed colour-field backdrop;
    content sits in glass panels on a 1140px column; the tab bar docks to the bottom on phones.
@@ -672,6 +681,12 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   .rings.anim .arc { animation: none; }
   *, *::before, *::after { transition-duration: .01ms !important; }
 }
+/* Look and feel, chosen in Setup: less motion does what the system setting does; larger text scales the page content
+   (the header and tab bar keep their size, so the tab highlight stays measured in plain pixels). */
+:root[data-motion="less"] .blob, :root[data-motion="less"] .rings.anim .arc { animation: none; }
+:root[data-motion="less"] *, :root[data-motion="less"] *::before, :root[data-motion="less"] *::after { transition-duration: .01ms !important; }
+:root[data-size="large"] #view { zoom: 1.12; }
+.look { display: grid; gap: 14px; }
 </style>
 </head>
 <body>
@@ -1708,7 +1723,7 @@ function viewToday() {
         <div class="sec-head"><h2 class="h2">Meals</h2>${plan.length ? `<span class="count">${eatenCount} of ${plan.filter(Boolean).length} eaten</span>` : ''}<div class="right">${plan.length ? `<button class="btn sm" data-act="go-plan">${ic('calendar-days')}Open in meal plan</button>` : ''}</div></div>
         ${stale}${meals}
       </section>
-      ${water}
+      ${look().water === 'hide' ? '' : water}
       <section>
         <div class="sec-head"><h2 class="h2">Also eaten</h2></div>
         <div class="glass panel addpanel">
@@ -2410,6 +2425,7 @@ function viewSetup() {
       <div id="setupErr" class="err" hidden></div>
       <button class="btn primary big" data-act="save-setup" id="saveBtn">${ic('check')}${state.profile.example ? 'Decide my plan' : 'Save changes'}</button>
     </aside>
+    ${lookPanel()}
     <section class="glass panel fs" aria-label="Your data">
       <div class="fs-head">${bub('hard-drive')}<div><h2 class="h2">Your data</h2><div class="muted small">${store.mode === 'db' ? 'Saved to your Claude account.' : 'Saved only on this device. Nothing is sent anywhere.'}</div></div></div>
       ${store.mode === 'db' ? '' : `<p class="hint" style="margin:0">${ui.persisted === true ? 'This browser has agreed to keep your data, so it stays until you delete it.'
@@ -2433,6 +2449,41 @@ function parseBackup(text) {
   let s; try { s = JSON.parse(String(text).trim()); } catch { return { err: "That isn't a backup. Use the whole file or the whole text you copied." }; }
   if (s?.app !== 'bulk-cut-kitchen' || !s.profile || !s.prefs || !(s.profile.weightKg > 0)) return { err: "That isn't a Decided backup." };
   return { s };
+}
+
+/* Look and feel: per-device choices, kept out of backups because a phone and a laptop can differ.
+   The script at the top of the page applies them before the first paint; this keeps them in step after a change. */
+const LOOK_KEY = 'bck-look';
+const look = () => { try { return JSON.parse(localStorage.getItem(LOOK_KEY) || '{}'); } catch { return {}; } };
+function applyLook(l = look()) {
+  const r = document.documentElement;
+  if (l.theme === 'light' || l.theme === 'dark') r.dataset.theme = l.theme; else delete r.dataset.theme;
+  if (l.size === 'large') r.dataset.size = 'large'; else delete r.dataset.size;
+  if (l.motion === 'less') r.dataset.motion = 'less'; else delete r.dataset.motion;
+  // The phone's status bar follows the chosen theme too.
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m => {
+    m.dataset.auto ||= m.content;
+    m.content = l.theme === 'light' ? '#E8F1EB' : l.theme === 'dark' ? '#06100C' : m.dataset.auto;
+  });
+}
+function setLook(key, value) {
+  const l = { ...look(), [key]: value };
+  try { localStorage.setItem(LOOK_KEY, JSON.stringify(l)); } catch {}
+  applyLook(l); render();
+}
+function lookPanel() {
+  const l = look(), opt = (key, v, label, def) => `<label><input type="radio" name="look-${key}" value="${v}" ${(l[key] || def) === v ? 'checked' : ''}><span>${label}</span></label>`;
+  const row = (label, key, def, opts, hint) => `<div class="field"><span class="lab" id="look-${key}-l">${label}</span>
+    <div class="seg" role="radiogroup" aria-labelledby="look-${key}-l">${opts.map(([v, t]) => opt(key, v, t, def)).join('')}</div>${hint ? `<span class="muted small">${hint}</span>` : ''}</div>`;
+  return `<section class="glass panel fs" aria-label="Look and feel">
+    <div class="fs-head">${bub('sliders-horizontal')}<div><h2 class="h2">Look and feel</h2><div class="muted small">Saved on this device. Changes apply straight away.</div></div></div>
+    <form id="lookForm" class="look">
+      ${row('Theme', 'theme', 'auto', [['auto', 'Match device'], ['light', 'Light'], ['dark', 'Dark']])}
+      ${row('Text size', 'size', 'standard', [['standard', 'Standard'], ['large', 'Larger']])}
+      ${row('Motion', 'motion', 'full', [['full', 'Full'], ['less', 'Less']], 'Less keeps the background still and turns off animations.')}
+      ${row('Water tracker', 'water', 'show', [['show', 'Show'], ['hide', 'Hide']], 'Hiding it removes the water section from Today.')}
+    </form>
+  </section>`;
 }
 
 /* Keeping data on the device. There is no server: the browser's storage is the only copy, so the app asks the
@@ -2776,6 +2827,8 @@ document.addEventListener('change', e => {
       else { q.w = f1(p.weightKg); q.h = p.heightCm > 0 ? String(Math.round(p.heightCm)) : ''; }
       render();
     }
+  } else if (el.closest('#lookForm')) {
+    setLook(el.name.slice(5), el.value);
   } else if (el.closest('#setupForm') && el.id !== 'f-dislike') {
     readSetup();
     if (el.name === 'units') render(); else updateSetupAside();
@@ -2868,12 +2921,12 @@ void main() {
   const loc = gl.getAttribLocation(prog, 'a'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
   const U = n => gl.getUniformLocation(prog, n);
   const u = { res: U('uRes'), time: U('uTime'), scroll: U('uScroll'), bg: U('uBg'), c: [1, 2, 3, 4, 5].map(i => U('uC' + i)) };
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)'), still = () => reduce.matches || document.documentElement.dataset.motion === 'less';
   const rgb = s => { s = s.trim().replace('#', ''); if (s.length === 3) s = s.replace(/./g, x => x + x); const n = parseInt(s, 16) || 0; return [(n >> 16 & 255) / 255, (n >> 8 & 255) / 255, (n & 255) / 255]; };
   const t0 = performance.now();
   let last = 0;
   function draw(now = performance.now()) {
-    gl.uniform1f(u.time, reduce.matches ? 40 : 40 + (now - t0) / 1000);
+    gl.uniform1f(u.time, still() ? 40 : 40 + (now - t0) / 1000);
     gl.uniform1f(u.scroll, scrollY / Math.max(1, innerHeight));
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
@@ -2889,16 +2942,16 @@ void main() {
   }
   function loop(now) {
     requestAnimationFrame(loop);
-    if (document.hidden || reduce.matches || now - last < 33) return;
+    if (document.hidden || still() || now - last < 33) return;
     last = now; draw(now);
   }
   cv.className = 'live'; cv.setAttribute('aria-hidden', 'true');
   $('.backdrop').prepend(cv); document.documentElement.classList.add('live-bg');
   size(); palette(); requestAnimationFrame(loop);
   addEventListener('resize', size);
-  addEventListener('scroll', () => { if (reduce.matches) draw(); }, { passive: true });
+  addEventListener('scroll', () => { if (still()) draw(); }, { passive: true });
   matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', palette);
-  new MutationObserver(palette).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  new MutationObserver(palette).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-motion'] });
   cv.addEventListener('webglcontextlost', () => { document.documentElement.classList.remove('live-bg'); cv.remove(); });
 }
 
@@ -2913,6 +2966,7 @@ if (ui.tab === 'setup') ui.draft = clone({ profile: state.profile, prefs: state.
 if (state.profile.example) planDay(TODAY());
 setSync(state.profile.example ? 'example' : 'loading');
 if (!state.profile.example) keepData();
+applyLook();
 render();
 requestAnimationFrame(() => { moveThumb(); requestAnimationFrame(() => $('.tabbar').classList.add('ready')); });
 document.fonts?.ready.then(moveThumb);

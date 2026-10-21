@@ -36,7 +36,8 @@ Pick a goal, enter your age, height and weight, and say what you don't eat. Deci
 - **Training days and batch cooking:** more food on the days you train and less on rest days, with the same weekly average. Lunches and dinners can be cooked once for two or three days.
 - **Groceries** turns the plan into a shopping list for 7 or 30 days, with amounts, cost by aisle and by day, and an optional budget the planner fits the week into. Prices cover 39 countries and can be adjusted for your city or set by hand.
 - **Progress** draws your weight trend, measures your real maintenance calories from your own logs, and keeps a streak and a five-week calendar.
-- **The small things:** water, one-tap re-adding of recent foods, undo, and backup and restore as plain text.
+- **The small things:** water, one-tap re-adding of recent foods, undo, and backup files you can save, share to another phone and restore.
+- **Look and feel:** light, dark or match the device, larger text, less motion, and the water tracker on or off. Each device keeps its own choices.
 
 ## How the numbers are made
 
